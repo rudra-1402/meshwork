@@ -1,0 +1,20 @@
+# Environment & secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+venv/
+
+# Flask
+instance/
+
+# Editors
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
