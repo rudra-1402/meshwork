@@ -32,9 +32,6 @@ def create_user(username, email, password, college_id=None):
         username=username,
         email=email,
         college_id=college_id,
-        level=0,
-        xp=0,
-        is_active=True,
         # is_email_verified=False
     )
 
@@ -74,13 +71,6 @@ def authenticate_user(email, password):
             "success": False,
             "user": None,
             "message": "Invalid email or password"
-        }
-
-    if not user.is_active:
-        return {
-            "success": False,
-            "user": None,
-            "message": "Account is disabled"
         }
 
     return {

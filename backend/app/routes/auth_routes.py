@@ -1,3 +1,4 @@
+
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.services.auth_services import authenticate_user, create_user
 from app.utils.validators import is_empty, is_valid_email
