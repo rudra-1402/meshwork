@@ -7,8 +7,10 @@ class College(db.Model):
     name = db.Column(db.String(255), unique=True, nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
+    location = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    # ✅ relationship (depends on FK in User)
+    # relationship (depends on FK in User)
     users = db.relationship("User", back_populates="college")
 
     def __repr__(self):

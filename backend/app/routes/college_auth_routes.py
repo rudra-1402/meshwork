@@ -29,6 +29,7 @@ def college_login():
 def college_signup():
     if request.method == "POST":
         name = request.form.get("name")
+        location = request.form.get("location")
         email = request.form.get("email")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
@@ -37,7 +38,7 @@ def college_signup():
             flash("Passwords do not match", "error")
             return redirect(url_for("college_auth_routes.college_signup"))
 
-        college = create_college(name=name, email=email, password=password)
+        college = create_college(name=name, location=location, email=email, password=password)
 
         if not college:
             flash("College already exists", "error")

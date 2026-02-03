@@ -12,8 +12,4 @@ def dashboard():
     if session.get("college_id"):
         return render_template("dashboard/dashboard.html", role="college")
 
-    # ❌ OLD (WRONG)
-    # return redirect(url_for("auth_routes.login"))
-
-    # ✅ NEW (CORRECT)
     return redirect(url_for("auth_routes.user_login"))

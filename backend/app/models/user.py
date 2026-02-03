@@ -13,14 +13,12 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
-    # 🔥 THIS IS THE KEY LINE (WITHOUT THIS = ERROR)
     college_id = db.Column(
         db.Integer,
         db.ForeignKey("colleges.id"),
         nullable=True
     )
 
-    # 🔥 AND THIS MUST MATCH College.users
     college = db.relationship("College", back_populates="users")
 
     is_active = db.Column(db.Boolean, default=True)
