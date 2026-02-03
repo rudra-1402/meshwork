@@ -4,69 +4,73 @@ from app.utils.validators import is_empty, is_valid_email
 
 auth_routes = Blueprint("auth_routes", __name__)
 
-@auth_routes.route("/login", methods=["GET", "POST"])
-def login():
+# ================= USER LOGIN =================
+@auth_routes.route("/login/user", methods=["GET", "POST"])
+def user_login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
 
         if is_empty(email) or is_empty(password):
             flash("Email and password are required.", "error")
-            return redirect(url_for("auth_routes.login"))
+            return redirect(url_for("auth_routes.user_login"))
 
         if not is_valid_email(email):
             flash("Invalid email format.", "error")
-            return redirect(url_for("auth_routes.login"))
+            return redirect(url_for("auth_routes.user_login"))
 
         result = authenticate_user(email, password)
 
         if result["success"]:
             user = result["user"]
+            session.clear()
             session["user_id"] = user.id
             session["user_email"] = user.email
             flash("Logged in successfully!", "success")
             return redirect(url_for("dashboard_routes.dashboard"))
 
         flash(result["message"], "error")
-        return redirect(url_for("auth_routes.login"))
+        return redirect(url_for("auth_routes.user_login"))
 
-    return render_template("auth/login.html")
+    return render_template("auth/login_user.html")
 
-@auth_routes.route("/signup", methods=["GET", "POST"])
-def signup():
+
+# ================= USER SIGNUP =================
+@auth_routes.route("/signup/user", methods=["GET", "POST"])
+def user_signup():
     if request.method == "POST":
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
 
-        # basic validations
         if is_empty(username) or is_empty(email) or is_empty(password) or is_empty(confirm_password):
             flash("All fields are required.", "error")
-            return redirect(url_for("auth_routes.signup"))
+            return redirect(url_for("auth_routes.user_signup"))
+
         if not is_valid_email(email):
             flash("Invalid email format.", "error")
-            return redirect(url_for("auth_routes.signup"))
+            return redirect(url_for("auth_routes.user_signup"))
+
         if password != confirm_password:
             flash("Passwords do not match.", "error")
-            return redirect(url_for("auth_routes.signup"))
-        
-        # Create user
-        user = create_user(
-                username=username,
-                email=email,
-                password=password
-            )
-        if not user:
-            flash("An account with this email already exists.", "error")
-            return redirect(url_for("auth_routes.signup"))
-        
-        flash("Account created successfully! Please log in.", "success")
-        return redirect(url_for("auth_routes.login"))
+            return redirect(url_for("auth_routes.user_signup"))
 
-    return render_template("auth/signup.html")
-@auth_routes.route("/logout")
-def logout():
+        user = create_user(username=username, email=email, password=password)
+
+        if not user:
+            flash("Account with this email already exists.", "error")
+            return redirect(url_for("auth_routes.user_signup"))
+
+        flash("Account created successfully! Please login.", "success")
+        return redirect(url_for("auth_routes.user_login"))
+
+    return render_template("auth/signup_user.html")
+
+
+# ================= USER LOGOUT =================
+@auth_routes.route("/logout/user")
+def user_logout():
     session.clear()
-    flash("You have been logged out.", "success")
+    flash("Logged out successfully.", "success")
     return redirect(url_for("main_routes.landing"))

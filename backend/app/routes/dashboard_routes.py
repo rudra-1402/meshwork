@@ -1,9 +1,19 @@
 from flask import Blueprint, render_template, session, redirect, url_for
-from app.utils.decorators import login_required
 
 dashboard_routes = Blueprint("dashboard_routes", __name__)
 
 @dashboard_routes.route("/dashboard")
-@login_required
 def dashboard():
-    return render_template("dashboard/dashboard.html", email=session.get("user_email"))
+    # User logged in
+    if session.get("user_id"):
+        return render_template("dashboard/dashboard.html", role="user")
+
+    # College logged in
+    if session.get("college_id"):
+        return render_template("dashboard/dashboard.html", role="college")
+
+    # ❌ OLD (WRONG)
+    # return redirect(url_for("auth_routes.login"))
+
+    # ✅ NEW (CORRECT)
+    return redirect(url_for("auth_routes.user_login"))

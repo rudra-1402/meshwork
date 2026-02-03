@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 
-main_routes = Blueprint('main_routes', __name__)
+main_routes = Blueprint("main_routes", __name__)
 
-@main_routes.route('/')
+@main_routes.route("/")
 def landing():
-    return render_template('landing.html')
+    return render_template("landing.html")
