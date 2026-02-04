@@ -1,33 +1,22 @@
-import os
-from openai import OpenAI
+def detect_interests(answers):
+    interests = set()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    if "coding" in answers.get("q1", []):
+        interests.add("Software Development")
 
-def detect_interests(user_answers: dict) -> list[str]:
-    """
-    Returns a list of interest names like:
-    ['Technology', 'Design', 'Leadership']
-    """
+    if "creative" in answers.get("q1", []):
+        interests.add("Design")
 
-    prompt = f"""
-You are an AI career counselor.
+    if "tech" in answers.get("q5", []):
+        interests.add("Technology")
 
-Based on the following answers, identify 3–5 main interests.
-Choose only from this list:
-Technology, Programming, Design, Arts, Business,
-Leadership, Teaching, Healthcare, Sports, Research
+    if "business" in answers.get("q5", []):
+        interests.add("Business")
 
-Answers:
-{user_answers}
+    if "leader" in answers.get("q6", []):
+        interests.add("Leadership")
 
-Return ONLY a comma-separated list.
-"""
+    if answers.get("q10", ["no"])[0] == "yes":
+        interests.add("Startup")
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3
-    )
-
-    interests = response.choices[0].message.content
-    return [i.strip() for i in interests.split(",")]
+    return list(interests)

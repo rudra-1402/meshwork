@@ -1,26 +1,26 @@
-from flask import Blueprint, request, redirect, url_for
-from app.models.user import User
-from app.models.interest import Interest
-from app.extensions import db
+from flask import Blueprint, render_template, request, redirect, url_for, session
 from app.services.ai_interest_service import detect_interests
 
 onboarding_routes = Blueprint("onboarding_routes", __name__)
 
-@onboarding_routes.route("/onboarding", methods=["POST"])
+@onboarding_routes.route("/onboarding", methods=["GET", "POST"])
 def onboarding():
-    user_id = request.form["user_id"]
-    user = User.query.get(user_id)
+    if "user_id" not in session:
+        return redirect(url_for("auth_routes.user_login"))
 
-    answers = dict(request.form)
+    if request.method == "POST":
+        answers = request.form.to_dict(flat=False)
 
-    ai_interests = detect_interests(answers)
+        interests = detect_interests(answers)
 
-    for name in ai_interests:
-        interest = Interest.query.filter_by(name=name).first()
-        if not interest:
-            interest = Interest(name=name)
-            db.session.add(interest)
-        user.interests.append(interest)
+        session["detected_interests"] = interests
 
-    db.session.commit()
-    return redirect(url_for("dashboard_routes.dashboard"))
+        return redirect(url_for("onboarding_routes.interest_result"))
+
+    return render_template("onboarding.html")
+
+
+@onboarding_routes.route("/interest-result")
+def interest_result():
+    interests = session.get("detected_interests", [])
+    return render_template("interest_result.html", interests=interests)

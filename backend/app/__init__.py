@@ -1,5 +1,6 @@
 from flask import Flask
 from app.config import Config
+from app.routes.onboarding_routes import onboarding_routes
 from app.extensions import db, migrate
 
 
