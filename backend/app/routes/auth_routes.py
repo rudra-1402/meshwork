@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_user, logout_user
 from app.services.auth_services import authenticate_user, create_user
 from app.utils.validators import is_empty, is_valid_email
 from app.models.college import College
@@ -25,13 +26,11 @@ def user_login():
         if result["success"]:
             user = result["user"]
 
-            session.clear()
-            session["user_id"] = user.id
-            session["user_email"] = user.email
+            # ✅ Flask-Login authentication
+            login_user(user)
 
             flash("Logged in successfully!", "success")
 
-            # 🔥 If no interests → onboarding
             if not user.interests or len(user.interests) == 0:
                 return redirect(url_for("onboarding_routes.onboarding"))
 
@@ -90,6 +89,6 @@ def user_signup():
 # ================= USER LOGOUT =================
 @auth_routes.route("/logout/user")
 def user_logout():
-    session.clear()
+    logout_user()
     flash("Logged out successfully.", "success")
     return redirect(url_for("main_routes.landing"))
