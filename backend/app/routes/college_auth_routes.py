@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.services.college_auth_services import authenticate_college, create_college
 
-college_auth_routes = Blueprint("college_auth_routes", __name__)
+college_auth_routes = Blueprint("college_auth", __name__)
 
 @college_auth_routes.route("/login/college", methods=["GET", "POST"])
 def college_login():
@@ -20,7 +20,7 @@ def college_login():
             return redirect(url_for("dashboard_routes.dashboard"))
 
         flash(result["message"], "error")
-        return redirect(url_for("college_auth_routes.college_login"))
+        return redirect(url_for("college_auth.college_login"))
 
     return render_template("colleges/login_college.html")
 
@@ -35,16 +35,16 @@ def college_signup():
 
         if password != confirm_password:
             flash("Passwords do not match", "error")
-            return redirect(url_for("college_auth_routes.college_signup"))
+            return redirect(url_for("college_auth.college_signup"))
 
         college = create_college(name=name, email=email, password=password)
 
         if not college:
             flash("College already exists", "error")
-            return redirect(url_for("college_auth_routes.college_signup"))
+            return redirect(url_for("college_auth.college_signup"))
 
         flash("College account created! Please login.", "success")
-        return redirect(url_for("college_auth_routes.college_login"))
+        return redirect(url_for("college_auth.college_login"))
 
     return render_template("colleges/signup_college.html")
 

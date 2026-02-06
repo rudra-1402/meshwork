@@ -12,12 +12,13 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
-    # ✅ FOREIGN KEY TO COLLEGE
     college_id = db.Column(
         db.Integer,
         db.ForeignKey("colleges.id"),
         nullable=True
     )
+
+    has_completed_questionnaire = db.Column(db.Boolean, default=False, nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
@@ -26,7 +27,6 @@ class User(db.Model):
         onupdate=datetime.utcnow
     )
 
-    # 🔐 Password helpers
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 

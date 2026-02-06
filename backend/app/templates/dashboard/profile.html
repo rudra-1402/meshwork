@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile - MeshWork</title>
+</head>
+<body>
+    <div class="profile-container">
+        <header class="profile-header">
+            <h1>Your Profile</h1>
+            <nav class="header-nav">
+                <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-logout">Logout</a>
+            </nav>
+        </header>
+
+        {% if error %}
+        <div class="error-message">
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- User Information -->
+        <section class="user-section">
+            <h2>Personal Information</h2>
+            <div class="info-grid">
+                <div class="info-row">
+                    <label>Username:</label>
+                    <span>{{ user.username }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Email:</label>
+                    <span>{{ user.email }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Member Since:</label>
+                    <span>{{ user.created_at.strftime('%B %d, %Y') }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Questionnaire Status:</label>
+                    <span class="status {% if user.has_completed_questionnaire %}completed{% else %}pending{% endif %}">
+                        {% if user.has_completed_questionnaire %}
+                            ✓ Completed
+                        {% else %}
+                            Pending
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scores if user has completed questionnaire -->
+        {% if scoring %}
+        
+        <!-- Motivation Score -->
+        <section class="motivation-section">
+            <h2>Overall Motivation Score</h2>
+            <div class="motivation-value">{{ "%.2f" | format(scoring.motivation_score) }} / 10.00</div>
+            <p>Your drive and engagement in learning</p>
+        </section>
+
+        <!-- Dominant Roles -->
+        <section class="roles-section">
+            <h2>Your Dominant Roles</h2>
+            <div class="role-list">
+                {% for role in scoring.dominant_roles %}
+                <div class="role-item">
+                    <span class="role-name">{{ role }}</span>
+                    <span class="role-score">{{ "%.2f" | format(scoring.raw_role_scores[role]) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="section-note">These 4 roles best describe your working style</p>
+        </section>
+
+        <!-- Top Interests -->
+        <section class="interests-section">
+            <h2>Top Technical Interests</h2>
+            <div class="interest-list">
+                {% for interest in scoring.get_top_interests(5) %}
+                <div class="interest-item">
+                    <span class="interest-name">{{ interest.interest }}</span>
+                    <span class="interest-score">{{ "%.2f" | format(interest.score) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="section-note">Your top 5 technical interests</p>
+        </section>
+
+        <!-- Action Buttons -->
+        <section class="action-section">
+            <form method="POST" action="{{ url_for('scoring.retake_questionnaire') }}">
+                <button type="submit" class="btn btn-primary">Retake Questionnaire</button>
+            </form>
+        </section>
+
+        {% else %}
+        <!-- No scores yet -->
+        <section class="no-scores-section">
+            <h2>Questionnaire Not Yet Completed</h2>
+            <p>Complete the questionnaire to see your profile scores and connect with the right collaborators.</p>
+            <a href="{{ url_for('scoring.questionnaire_form') }}" class="btn btn-primary">Start Questionnaire</a>
+        </section>
+        {% endif %}
+    </div>
+</body>
+</html>

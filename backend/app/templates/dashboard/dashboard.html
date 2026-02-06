@@ -1,7 +1,49 @@
 {% extends "base.html" %}
+
 {% block content %}
-    <h2> Dashboard </h2>
-    <p> Welcome to your dashboard! Here you can manage your activities. </p>
-    <p>You are logged in as {{ email }}.</p>
-    <!-- <button onclick="window.location.href='/logout'">Logout</button> -->
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>Dashboard</h2>
+        <div class="header-actions">
+            <a href="{{ url_for('dashboard.profile_page') }}" class="btn btn-primary">View Profile</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-logout">Logout</a>
+        </div>
+    </div>
+
+    <section class="user-card">
+        <h3>Welcome, {{ username }}</h3>
+        <div class="user-info">
+            <div class="info-item">
+                <label>Username</label>
+                <span>{{ username }}</span>
+            </div>
+            <div class="info-item">
+                <label>Email</label>
+                <span>{{ email }}</span>
+            </div>
+        </div>
+        
+        <div class="questionnaire-status {% if has_completed_questionnaire %}completed{% else %}pending{% endif %}">
+            {% if has_completed_questionnaire %}
+                <strong>✓ Questionnaire Completed</strong>
+                <p>Your profile has been analyzed and is ready to use for finding collaborators.</p>
+            {% else %}
+                <strong>⚠ Questionnaire Pending</strong>
+                <p>Complete your profile questionnaire to get matched with collaborators.</p>
+                <a href="{{ url_for('scoring.questionnaire_form') }}">Start Questionnaire →</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="quick-actions">
+        <h3>Quick Actions</h3>
+        <ul>
+            <li><a href="{{ url_for('scoring.questionnaire_form') }}">Complete Profile Questionnaire</a></li>
+            <li><a href="{{ url_for('dashboard.profile_page') }}">View Your Profile Scores</a></li>
+            <li><a href="/">Browse Projects</a></li>
+            <li><a href="/">Find Collaborators</a></li>
+        </ul>
+    </section>
+</div>
+
 {% endblock %}
