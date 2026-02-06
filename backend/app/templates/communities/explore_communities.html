@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Explore Communities</title>
+</head>
+<body>
+
+<h2>Explore Communities</h2>
+
+{% if communities %}
+    <ul>
+    {% for community in communities %}
+        <li>
+            <strong>{{ community.community_name }}</strong><br>
+            Subject: {{ community.subject }}<br>
+
+            {% if community.community_id in joined_ids %}
+                <button disabled>Joined</button>
+            {% else %}
+                <form method="POST" action="{{ url_for('community_routes.join_community', community_id=community.community_id) }}">
+                    <button type="submit">Join</button>
+                </form>
+            {% endif %}
+        </li>
+        <hr>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No communities available.</p>
+{% endif %}
+
+<a href="{{ url_for('dashboard_routes.dashboard') }}">Back</a>
+
+</body>
+</html>
