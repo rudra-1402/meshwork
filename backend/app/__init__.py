@@ -2,7 +2,7 @@ from flask import Flask
 from app.config import Config
 from datetime import timedelta
 from flask_jwt_extended import JWTManager
-from app.extensions import db, migrate
+from app.extensions import db, migrate, login_manager
 
 def create_app():
     app = Flask(__name__)
@@ -48,25 +48,31 @@ def create_app():
         logger.warning(f"Expired JWT token for {request.path}")
         flash("Your session has expired. Please log in again.", "error")
         return redirect(url_for("auth.user_login")), 302
+    login_manager.init_app(app)
 
-    # ✅ IMPORT *ALL* MODELS (VERY IMPORTANT)
+    # ================= IMPORT MODELS =================
+    # (Required so Flask-Migrate can detect tables)
     from app.models.user import User
     from app.models.college import College
     from app.models.scoring import UserScoring
     from app.models.scoring_history import ScoringHistory
     from app.models.user_language import UserLanguage
+    from app.models.community import Community
+    from app.models.community_member import CommunityMember
 
-    # ✅ REGISTER BLUEPRINTS
+    # ================= REGISTER BLUEPRINTS =================
     from app.routes.main_routes import main_routes
     from app.routes.auth_routes import auth_routes
     from app.routes.college_auth_routes import college_auth_routes
     from app.routes.dashboard_routes import dashboard_routes
     from app.routes.scoring_routes import scoring_bp
+    from app.routes.community_routes import community_routes
 
     app.register_blueprint(main_routes)
     app.register_blueprint(auth_routes)
     app.register_blueprint(college_auth_routes)
     app.register_blueprint(dashboard_routes, url_prefix="")
     app.register_blueprint(scoring_bp, url_prefix="/scoring")
+    app.register_blueprint(community_routes)
 
     return app

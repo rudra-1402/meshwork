@@ -4,11 +4,22 @@
 <h2>User Signup</h2>
 
 <form method="POST" action="/signup/user">
+
     <label>Username</label>
     <input type="text" name="username" required>
 
     <label>Email</label>
     <input type="email" name="email" required>
+
+    <label>Select College</label>
+    <select name="college_id" required>
+        <option value="">-- Select your college --</option>
+        {% for college in colleges %}
+            <option value="{{ college.id }}">
+                {{ college.name }} ({{ college.city }}, {{ college.state }})
+            </option>
+        {% endfor %}
+    </select>
 
     <label>Password</label>
     <input type="password" name="password" required>

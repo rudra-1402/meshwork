@@ -43,13 +43,16 @@ def user_login():
 # ================= USER SIGNUP =================
 @auth_routes.route("/signup/user", methods=["GET", "POST"])
 def user_signup():
+    colleges = College.query.all()
+
     if request.method == "POST":
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
+        college_id = request.form.get("college_id")
 
-        if is_empty(username) or is_empty(email) or is_empty(password) or is_empty(confirm_password):
+        if is_empty(username) or is_empty(email) or is_empty(password) or is_empty(confirm_password) or is_empty(college_id):
             flash("All fields are required.", "error")
             return redirect(url_for("auth.user_signup"))
 
@@ -61,7 +64,12 @@ def user_signup():
             flash("Passwords do not match.", "error")
             return redirect(url_for("auth.user_signup"))
 
-        user = create_user(username=username, email=email, password=password)
+        user = create_user(
+            username=username,
+            email=email,
+            password=password,
+            college_id=int(college_id)
+        )
 
         if not user:
             flash("Account with this email already exists.", "error")
@@ -76,7 +84,10 @@ def user_signup():
         flash("Account created successfully!", "success")
         return response
 
-    return render_template("auth/signup_user.html")
+    return render_template(
+        "auth/signup_user.html",
+        colleges=colleges
+    )
 
 
 # ================= USER LOGOUT =================
