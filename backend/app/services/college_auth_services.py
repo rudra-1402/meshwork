@@ -7,6 +7,15 @@ def get_college_by_email(email):
     return College.query.filter_by(email=email).first()
 
 
+def get_college_by_id(college_id):
+    """
+    Fetch a college by ID.
+    Returns:
+        College object or None
+    """
+    return College.query.get(college_id)
+
+
 def create_college(name, email, password, city=None, state=None):
     """
     Create and persist a new college

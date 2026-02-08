@@ -1,10 +1,9 @@
-from app.extensions import db, login_manager
+from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models.user_interest import user_interests
-from flask_login import UserMixin
+from datetime import datetime
 
 
-class User(UserMixin, db.Model):
+class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -20,6 +19,9 @@ class User(UserMixin, db.Model):
 
     has_completed_questionnaire = db.Column(db.Boolean, default=False, nullable=False)
 
+    # Relationships
+    college = db.relationship("College", back_populates="users")
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime,
@@ -32,9 +34,3 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-
-# 🔑 REQUIRED by Flask-Login
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))

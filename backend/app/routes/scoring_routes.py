@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask import render_template, redirect, url_for, flash
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 import logging
 
 from app.extensions import db
@@ -11,6 +11,7 @@ from app.exceptions import (
     ScoringError,
     NotScoredError
 )
+from app.utils.jwt_helpers import get_user_id_or_redirect
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,9 @@ def questionnaire_form():
     Display the questionnaire form for users who haven't completed it.
     Redirects to profile if already completed.
     """
-    user_id = int(get_jwt_identity())  # Convert string JWT identity back to int
+    user_id, response = get_user_id_or_redirect()
+    if response:
+        return response
     
     from app.models.scoring import UserScoring
     
@@ -56,7 +59,9 @@ def submit_questionnaire():
     """
     Submit questionnaire - handles both JSON (API) and form data (HTML form).
     """
-    user_id = int(get_jwt_identity())  # Convert string JWT identity back to int
+    user_id, response = get_user_id_or_redirect()
+    if response:
+        return response
     logger.info(f"=== Starting questionnaire submission for user_id={user_id} ===")
     
     # Handle both JSON and form data
@@ -213,7 +218,9 @@ def get_scoring_profile():
     Errors:
     - 404: User hasn't completed questionnaire yet
     """
-    user_id = get_jwt_identity()  # Convert string to int
+    user_id, response = get_user_id_or_redirect()
+    if response:
+        return response
     
     from app.models.scoring import UserScoring
     
@@ -272,7 +279,9 @@ def get_scoring_history():
         }
     }
     """
-    user_id = get_jwt_identity()  # Convert string to int
+    user_id, response = get_user_id_or_redirect()
+    if response:
+        return response
     limit = request.args.get('limit', 20, type=int)
     
     from app.models.scoring_history import ScoringHistory
@@ -309,7 +318,9 @@ def retake_questionnaire():
     """
     Allow user to retake the questionnaire by deleting their current scores.
     """
-    user_id = get_jwt_identity()
+    user_id, response = get_user_id_or_redirect()
+    if response:
+        return response
     
     from app.models.scoring import UserScoring
     from app.models.scoring_history import ScoringHistory

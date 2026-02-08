@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.services.college_auth_services import authenticate_college, create_college
+from flask_jwt_extended import create_access_token, unset_jwt_cookies, set_access_cookies
 
 college_auth_routes = Blueprint("college_auth", __name__)
 
@@ -15,12 +16,15 @@ def college_login():
         if result["success"]:
             college = result["college"]
 
-            session.clear()
-            session["college_id"] = college.id
-            session["college_email"] = college.email
+            # Create JWT access token with college ID (prefixed with 'college_')
+            access_token = create_access_token(identity=f"college_{college.id}")
+            
+            # Store token in HTTP-only cookie
+            response = redirect(url_for("dashboard.college_dashboard"))
+            set_access_cookies(response, access_token)
 
             flash("College logged in successfully!", "success")
-            return redirect(url_for("dashboard_routes.dashboard"))
+            return response
 
         flash(result["message"], "error")
         return redirect(url_for("college_auth.college_login"))
@@ -42,7 +46,7 @@ def college_signup():
         # ---- validations ----
         if not name or not email or not password or not confirm_password:
             flash("All fields are required", "error")
-            return redirect(url_for("college_auth_routes.college_signup"))
+            return redirect(url_for("college_auth.college_signup"))
 
         if password != confirm_password:
             flash("Passwords do not match", "error")
@@ -65,10 +69,10 @@ def college_signup():
 
     return render_template("colleges/signup_college.html")
 
-
 # ================= COLLEGE LOGOUT =================
 @college_auth_routes.route("/logout/college")
 def college_logout():
-    session.clear()
+    response = redirect(url_for("main_routes.landing"))
+    unset_jwt_cookies(response)  # Clear JWT cookies
     flash("College logged out", "success")
-    return redirect(url_for("main_routes.landing"))
+    return response

@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.services.auth_services import authenticate_user, create_user
 from app.utils.validators import is_empty, is_valid_email
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, set_access_cookies
+from app.models.college import College
 
 auth_routes = Blueprint("auth", __name__)
 

@@ -2,7 +2,7 @@ from flask import Flask
 from app.config import Config
 from datetime import timedelta
 from flask_jwt_extended import JWTManager
-from app.extensions import db, migrate, login_manager
+from app.extensions import db, migrate
 
 def create_app():
     app = Flask(__name__)
@@ -20,7 +20,8 @@ def create_app():
     # Set timeout for long-running operations like Ollama AI scoring
     # Allows up to 2 minutes for AI model inference
     app.config['TIMEOUT'] = 120
-    # ✅ INIT EXTENSIONS FIRST
+    
+    # ✅ INIT EXTENSIONS
     db.init_app(app)
     migrate.init_app(app, db)
     jwt = JWTManager(app)
@@ -31,24 +32,28 @@ def create_app():
     
     logger = logging.getLogger(__name__)
     
+    def _select_login_redirect():
+        if request.endpoint and request.endpoint.startswith("dashboard.college"):
+            return redirect(url_for("college_auth.college_login"))
+        return redirect(url_for("auth.user_login"))
+
     @jwt.unauthorized_loader
     def missing_token_callback(error):
         logger.warning(f"Missing JWT token for {request.path}")
         flash("Please log in to access this page.", "error")
-        return redirect(url_for("auth.user_login")), 302
+        return _select_login_redirect(), 302
     
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
         logger.warning(f"Invalid JWT token for {request.path}: {error}")
         flash("Your session has expired. Please log in again.", "error")
-        return redirect(url_for("auth.user_login")), 302
+        return _select_login_redirect(), 302
     
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_data):
         logger.warning(f"Expired JWT token for {request.path}")
         flash("Your session has expired. Please log in again.", "error")
-        return redirect(url_for("auth.user_login")), 302
-    login_manager.init_app(app)
+        return _select_login_redirect(), 302
 
     # ================= IMPORT MODELS =================
     # (Required so Flask-Migrate can detect tables)
@@ -59,6 +64,13 @@ def create_app():
     from app.models.user_language import UserLanguage
     from app.models.community import Community
     from app.models.community_member import CommunityMember
+    from app.models.community_moderator import CommunityModerator
+    from app.models.community_task import CommunityTask
+    from app.models.task_completion import TaskCompletion
+    from app.models.community_message import CommunityMessage
+    from app.models.community_poll import CommunityPoll, PollVote
+    from app.models.community_file import CommunityFile
+    from app.models.event_models import Event, EventParticipant, EventTask
 
     # ================= REGISTER BLUEPRINTS =================
     from app.routes.main_routes import main_routes

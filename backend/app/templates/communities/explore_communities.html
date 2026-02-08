@@ -16,6 +16,7 @@
 
             {% if community.community_id in joined_ids %}
                 <button disabled>Joined</button>
+                <a href="{{ url_for('community_routes.view_community', community_id=community.community_id) }}">View</a>
             {% else %}
                 <form method="POST" action="{{ url_for('community_routes.join_community', community_id=community.community_id) }}">
                     <button type="submit">Join</button>
@@ -29,7 +30,7 @@
     <p>No communities available.</p>
 {% endif %}
 
-<a href="{{ url_for('dashboard_routes.dashboard') }}">Back</a>
+<a href="{{ url_for('dashboard.dashboard') }}">Back</a>
 
 </body>
 </html>
