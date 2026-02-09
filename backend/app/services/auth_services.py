@@ -5,28 +5,49 @@ from sqlalchemy.exc import IntegrityError
 
 def get_user_by_email(email):
     """
-    Fetch a user by email.
+    Fetch a user by email address.
+    
+    Args:
+        email (str): User's email address
+    
     Returns:
-        User object or None
+        User: User object if found, None otherwise
     """
     return User.query.filter_by(email=email).first()
 
 
 def get_user_by_id(user_id):
     """
-    Fetch a user by ID.
+    Fetch a user by their unique ID.
+    
+    Args:
+        user_id (int): User's unique identifier
+    
     Returns:
-        User object or None
+        User: User object if found, None otherwise
     """
     return User.query.get(user_id)
 
 
 def create_user(username, email, password, college_id=None):
     """
-    Create and persist a new user.
+    Create and persist a new user account.
+    
+    Args:
+        username (str): Desired username
+        email (str): User's email address (must be unique)
+        password (str): Plain text password (will be hashed automatically)
+        college_id (int, optional): Associated college ID. Defaults to None.
+    
     Returns:
-        User object on success
-        None on failure (e.g. duplicate email)
+        User: Created user object with gamification fields initialized:
+              - xp = 0, level = 1, reputation = 0
+              - current_streak = 0, max_streak = 0
+        None: If user already exists (duplicate email)
+    
+    Note:
+        Gamification fields are automatically initialized with defaults.
+        Password is hashed using User.set_password() before storage.
     """
     user = User(
         username=username,
@@ -51,11 +72,24 @@ def create_user(username, email, password, college_id=None):
 def authenticate_user(email, password):
     """
     Authenticate user credentials.
+    
+    Args:
+        email (str): User's email address
+        password (str): Plain text password to verify
+    
     Returns:
-        dict with keys:
-        - success (bool)
-        - user (User | None)
-        - message (str | None)
+        dict: Authentication result with keys:
+            - success (bool): True if authentication successful
+            - user (User|None): User object if successful, None otherwise
+            - message (str|None): Error message if failed, None if successful
+    
+    Example:
+        >>> result = authenticate_user('user@example.com', 'password123')
+        >>> if result['success']:
+        ...     user = result['user']
+        ...     # Process successful login
+        >>> else:
+        ...     print(result['message'])  # "Invalid email or password"
     """
     user = get_user_by_email(email)
 

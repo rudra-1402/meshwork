@@ -14,10 +14,10 @@ def create_app():
     app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # Enable CSRF in production
     app.config['JWT_COOKIE_SAMESITE'] = 'Lax'
     app.config['JWT_DECODE_LEEWAY'] = 10  # Allow 10 seconds of leeway for clock skew
+
     # Extended to 24 hours for better user experience (reduce in production if needed)
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
     
-    # Set timeout for long-running operations like Ollama AI scoring
     # Allows up to 2 minutes for AI model inference
     app.config['TIMEOUT'] = 120
     
@@ -36,7 +36,7 @@ def create_app():
         if request.endpoint and request.endpoint.startswith("dashboard.college"):
             return redirect(url_for("college_auth.college_login"))
         return redirect(url_for("auth.user_login"))
-
+    
     @jwt.unauthorized_loader
     def missing_token_callback(error):
         logger.warning(f"Missing JWT token for {request.path}")
@@ -54,14 +54,20 @@ def create_app():
         logger.warning(f"Expired JWT token for {request.path}")
         flash("Your session has expired. Please log in again.", "error")
         return _select_login_redirect(), 302
-
+    
     # ================= IMPORT MODELS =================
     # (Required so Flask-Migrate can detect tables)
+    
+    # Core models
     from app.models.user import User
     from app.models.college import College
+    
+    # Scoring models
     from app.models.scoring import UserScoring
     from app.models.scoring_history import ScoringHistory
     from app.models.user_language import UserLanguage
+    
+    # Community models
     from app.models.community import Community
     from app.models.community_member import CommunityMember
     from app.models.community_moderator import CommunityModerator
@@ -70,8 +76,15 @@ def create_app():
     from app.models.community_message import CommunityMessage
     from app.models.community_poll import CommunityPoll, PollVote
     from app.models.community_file import CommunityFile
+    
+    # Event models
     from app.models.event_models import Event, EventParticipant, EventTask
-
+    
+    # ✅ GAMIFICATION MODELS (NEW)
+    from app.models.user_skill import UserSkill
+    from app.models.xp_transaction import XPTransaction
+    # Note: User model already imported above, but it now has gamification fields
+    
     # ================= REGISTER BLUEPRINTS =================
     from app.routes.main_routes import main_routes
     from app.routes.auth_routes import auth_routes
@@ -79,7 +92,11 @@ def create_app():
     from app.routes.dashboard_routes import dashboard_routes
     from app.routes.scoring_routes import scoring_bp
     from app.routes.community_routes import community_routes
-
+    
+    from app.routes.profile_routes import profile_bp
+    from app.routes.leaderboard_routes import leaderboards_bp
+    from app.routes.admin_routes import admin_bp  # Or your admin blueprint
+    
     app.register_blueprint(main_routes)
     app.register_blueprint(auth_routes)
     app.register_blueprint(college_auth_routes)
@@ -87,4 +104,8 @@ def create_app():
     app.register_blueprint(scoring_bp, url_prefix="/scoring")
     app.register_blueprint(community_routes)
 
+    app.register_blueprint(profile_bp)
+    app.register_blueprint(leaderboards_bp)
+    app.register_blueprint(admin_bp)
+    
     return app
