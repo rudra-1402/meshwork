@@ -5,25 +5,39 @@
 
 <form method="POST" action="/signup/college">
 
-    <label>College Name</label>
-    <input type="text" name="name" required>
+    <label>College Name</label><br>
+    <input type="text" name="name" required><br><br>
 
-    <label>Email</label>
-    <input type="email" name="email" required>
+    <label>Official College Email Domain</label><br>
+    <input type="text" name="email" placeholder="mail.ljku.edu.in" required><br><br>
+    
+    <label>City</label><br>
+    <input type="text" name="city" required><br><br>
 
-    <label>City</label>
-    <input type="text" name="city" required>
+    <label>State</label><br>
+    <input type="text" name="state" required><br><br>
 
-    <label>State</label>
-    <input type="text" name="state" required>
+    <label>College Address</label><br>
+    <textarea name="address" required></textarea><br><br>
 
-    <label>Password</label>
-    <input type="password" name="password" required>
+    <h3>Registered By</h3>
 
-    <label>Confirm Password</label>
-    <input type="password" name="confirm_password" required>
+    <label>First Name</label><br>
+    <input type="text" name="first_name" required><br><br>
 
-    <button type="submit">Sign Up</button>
+    <label>Last Name</label><br>
+    <input type="text" name="last_name" required><br><br>
+
+    <label>Position</label><br>
+    <input type="text" name="position" placeholder="Admin / Principal" required><br><br>
+
+    <label>Password</label><br>
+    <input type="password" name="password" required><br><br>
+
+    <label>Confirm Password</label><br>
+    <input type="password" name="confirm_password" required><br><br>
+
+    <button type="submit">Register College</button>
 </form>
 
 {% endblock %}
