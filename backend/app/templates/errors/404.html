@@ -1,6 +1,37 @@
 {% extends "base.html" %}
 
-    {% block content %}
-        <h2>404 - Not Found</h2>
-        <p>The page you are looking for does not exist.</p>
-    {% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-8">
+    <div class="glass-card-strong p-12 max-w-2xl text-center fade-in-up">
+        <!-- Animated 404 with morphing blob -->
+        <div class="relative mb-8">
+            <div class="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-fresh-shoot to-deep-growth animate-pulse">
+                404
+            </div>
+            <div class="absolute inset-0 -z-10 opacity-20">
+                <div class="morphing-blob"></div>
+            </div>
+        </div>
+        
+        <h2 class="text-3xl font-bold text-graphite mb-4">Lost in the Mesh</h2>
+        <p class="text-graphite/70 text-lg mb-8">
+            The page you're looking for seems to have wandered off the network.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn-primary">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                Go Home
+            </a>
+            <a href="javascript:history.back()" class="btn-outline">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Go Back
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -29,12 +29,14 @@ def get_user_by_id(user_id):
     return User.query.get(user_id)
 
 
-def create_user(username, email, password, college_id=None):
+def create_user(username, first_name, last_name, email, password, college_id=None):
     """
     Create and persist a new user account.
     
     Args:
-        username (str): Desired username
+        username (str): Desired username (must be unique)
+        first_name (str): User's first name
+        last_name (str): User's last name
         email (str): User's email address (must be unique)
         password (str): Plain text password (will be hashed automatically)
         college_id (int, optional): Associated college ID. Defaults to None.
@@ -43,14 +45,24 @@ def create_user(username, email, password, college_id=None):
         User: Created user object with gamification fields initialized:
               - xp = 0, level = 1, reputation = 0
               - current_streak = 0, max_streak = 0
-        None: If user already exists (duplicate email)
+        None: If user already exists (duplicate email or username)
     
     Note:
         Gamification fields are automatically initialized with defaults.
         Password is hashed using User.set_password() before storage.
     """
+    # Check if username is taken
+    if User.query.filter_by(username=username).first():
+        return None
+    
+    # Check if email is taken
+    if User.query.filter_by(email=email).first():
+        return None
+    
     user = User(
         username=username,
+        first_name=first_name,
+        last_name=last_name,
         email=email,
         college_id=college_id,
         # is_email_verified=False
@@ -67,6 +79,19 @@ def create_user(username, email, password, college_id=None):
     except IntegrityError as e:
         db.session.rollback()
         return None
+
+
+def check_username_availability(username):
+    """
+    Check if username is available.
+    
+    Args:
+        username (str): Username to check
+    
+    Returns:
+        bool: True if available, False if taken
+    """
+    return User.query.filter_by(username=username).first() is None
 
 
 def authenticate_user(email, password):

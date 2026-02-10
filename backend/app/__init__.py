@@ -61,6 +61,8 @@ def create_app():
     # Core models
     from app.models.user import User
     from app.models.college import College
+    from app.models.college_personnel import CollegePersonnel
+    from app.models.whitelisted_email import WhitelistedEmail
     
     # Scoring models
     from app.models.scoring import UserScoring
@@ -92,6 +94,7 @@ def create_app():
     from app.routes.dashboard_routes import dashboard_routes
     from app.routes.scoring_routes import scoring_bp
     from app.routes.community_routes import community_routes
+    from app.routes.personnel_dashboard_routes import personnel_dashboard_routes
     
     from app.routes.profile_routes import profile_bp
     from app.routes.leaderboard_routes import leaderboards_bp
@@ -103,6 +106,7 @@ def create_app():
     app.register_blueprint(dashboard_routes, url_prefix="")
     app.register_blueprint(scoring_bp, url_prefix="/scoring")
     app.register_blueprint(community_routes)
+    app.register_blueprint(personnel_dashboard_routes)
 
     app.register_blueprint(profile_bp)
     app.register_blueprint(leaderboards_bp)

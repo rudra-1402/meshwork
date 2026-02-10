@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Welcome Card -->
+        <div class="glass-card-strong p-8 mb-8 fade-in-up">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-2xl text-white font-bold">
+                    {{ personnel.first_name[0]|upper }}{{ personnel.last_name[0]|upper }}
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-graphite">Welcome, {{ personnel.first_name }} {{ personnel.last_name }}!</h1>
+                    <p class="text-graphite/70">{{ personnel.get_role_display() }} at {{ personnel.college.name }}</p>
+                    <p class="text-graphite/60 text-sm">{{ personnel.email }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass-card-strong p-6 card-lift fade-in-up stagger-1">
+                <div class="text-4xl font-bold text-digital-violet mb-2">{{ whitelist_stats.total }}</div>
+                <div class="text-graphite/70">Total Whitelisted</div>
+            </div>
+            
+            <div class="glass-card-strong p-6 card-lift fade-in-up stagger-2">
+                <div class="text-4xl font-bold text-deep-growth mb-2">{{ whitelist_stats.registered }}</div>
+                <div class="text-graphite/70">Registered</div>
+            </div>
+            
+            <div class="glass-card-strong p-6 card-lift fade-in-up stagger-3">
+                <div class="text-4xl font-bold text-safety-orange mb-2">{{ whitelist_stats.pending }}</div>
+                <div class="text-graphite/70">Pending</div>
+            </div>
+            
+            <div class="glass-card-strong p-6 card-lift fade-in-up stagger-4">
+                <div class="text-4xl font-bold text-digital-violet mb-2">{{ "%.1f"|format(whitelist_stats.registration_rate) }}%</div>
+                <div class="text-graphite/70">Registration Rate</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        {% if personnel.can_manage_students %}
+        <div class="glass-card-strong p-8 mb-8 fade-in-up stagger-5">
+            <h2 class="text-2xl font-bold text-graphite mb-6">Quick Actions</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="/personnel/students" class="glass-card p-6 card-lift hover-scale smooth-transition">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-deep-growth to-fresh-shoot flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-graphite">View Students</h3>
+                            <p class="text-graphite/70 text-sm">Manage registered students</p>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="/personnel/whitelist" class="glass-card p-6 card-lift hover-scale smooth-transition">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-graphite">Manage Whitelist</h3>
+                            <p class="text-graphite/70 text-sm">Add or remove student emails</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Whitelist Entries -->
+        <div class="glass-card-strong p-8 fade-in-up stagger-6">
+            <h2 class="text-2xl font-bold text-graphite mb-6">Recent Whitelist Entries</h2>
+            
+            {% if recent_whitelist %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b-2 border-graphite/20">
+                            <th class="text-left py-3 px-4 text-graphite font-semibold">Email</th>
+                            <th class="text-left py-3 px-4 text-graphite font-semibold">Enrollment</th>
+                            <th class="text-left py-3 px-4 text-graphite font-semibold">Name</th>
+                            <th class="text-left py-3 px-4 text-graphite font-semibold">Status</th>
+                            <th class="text-left py-3 px-4 text-graphite font-semibold">Added Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in recent_whitelist %}
+                        <tr class="border-b border-graphite/10 hover:bg-white/50 transition-colors">
+                            <td class="py-3 px-4 text-graphite">{{ entry.email }}</td>
+                            <td class="py-3 px-4 text-graphite/70">{{ entry.student_enrollment or '-' }}</td>
+                            <td class="py-3 px-4 text-graphite/70">{{ entry.student_name or '-' }}</td>
+                            <td class="py-3 px-4">
+                                {% if entry.is_registered %}
+                                    <span class="badge badge-success">Registered</span>
+                                {% else %}
+                                    <span class="badge badge-pending">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4 text-graphite/70">{{ entry.created_at.strftime('%Y-%m-%d') if entry.created_at else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-graphite/60 text-center py-8">No whitelist entries yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

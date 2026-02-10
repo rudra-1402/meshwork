@@ -1,108 +1,152 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Profile - MeshWork</title>
-</head>
-<body>
-    <div class="profile-container">
-        <header class="profile-header">
-            <h1>Your Profile</h1>
-            <nav class="header-nav">
-                <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-logout">Logout</a>
-            </nav>
-        </header>
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8 fade-in-up">
+            <div>
+                <h1 class="text-4xl font-bold text-graphite mb-2">Your Profile</h1>
+                <p class="text-graphite/70">View your skills and achievements</p>
+            </div>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn-outline">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
 
         {% if error %}
-        <div class="error-message">
-            <strong>Error:</strong> {{ error }}
+        <div class="glass-card p-4 mb-6 border-l-4 border-safety-orange fade-in-up">
+            <strong class="text-safety-orange">Error:</strong> <span class="text-graphite">{{ error }}</span>
         </div>
         {% endif %}
 
-        <!-- User Information -->
-        <section class="user-section">
-            <h2>Personal Information</h2>
-            <div class="info-grid">
-                <div class="info-row">
-                    <label>Username:</label>
-                    <span>{{ user.username }}</span>
+        <!-- Profile Card -->\n        <div class="glass-card-strong p-8 mb-6 fade-in-up stagger-1">
+            <div class="flex items-start space-x-8">
+                <!-- Avatar -->
+                <div class="flex-shrink-0">
+                    <div class="w-32 h-32 rounded-full bg-gradient-to-br from-deep-growth to-fresh-shoot flex items-center justify-center text-5xl text-white font-bold">
+                        {{ user.username[0]|upper }}
+                    </div>
                 </div>
-                <div class="info-row">
-                    <label>Email:</label>
-                    <span>{{ user.email }}</span>
-                </div>
-                <div class="info-row">
-                    <label>Member Since:</label>
-                    <span>{{ user.created_at.strftime('%B %d, %Y') }}</span>
-                </div>
-                <div class="info-row">
-                    <label>Questionnaire Status:</label>
-                    <span class="status {% if user.has_completed_questionnaire %}completed{% else %}pending{% endif %}">
-                        {% if user.has_completed_questionnaire %}
-                            ✓ Completed
-                        {% else %}
-                            Pending
-                        {% endif %}
-                    </span>
+                
+                <!-- User Info -->
+                <div class="flex-1">
+                    <h2 class="text-3xl font-bold text-graphite mb-2">{{ user.username }}</h2>
+                    <p class="text-graphite/70 mb-4">{{ user.email }}</p>
+                    
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="glass-card p-4">
+                            <div class="text-graphite/60 text-sm mb-1">Member Since</div>
+                            <div class="font-bold text-graphite">{{ user.created_at.strftime('%B %d, %Y') }}</div>
+                        </div>
+                        <div class="glass-card p-4">
+                            <div class="text-graphite/60 text-sm mb-1">Status</div>
+                            <div class="font-bold {% if user.has_completed_questionnaire %}text-deep-growth{% else %}text-safety-orange{% endif %}">
+                                {% if user.has_completed_questionnaire %}
+                                    ✓ Completed
+                                {% else %}
+                                    Pending
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="glass-card p-4">
+                            <div class="text-graphite/60 text-sm mb-1">Level</div>
+                            <div class="font-bold text-digital-violet">{{ level|default(1) }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Scores if user has completed questionnaire -->
         {% if scoring %}
-        
-        <!-- Motivation Score -->
-        <section class="motivation-section">
-            <h2>Overall Motivation Score</h2>
-            <div class="motivation-value">{{ "%.2f" | format(scoring.motivation_score) }} / 10.00</div>
-            <p>Your drive and engagement in learning</p>
-        </section>
-
-        <!-- Dominant Roles -->
-        <section class="roles-section">
-            <h2>Your Dominant Roles</h2>
-            <div class="role-list">
-                {% for role in scoring.dominant_roles %}
-                <div class="role-item">
-                    <span class="role-name">{{ role }}</span>
-                    <span class="role-score">{{ "%.2f" | format(scoring.raw_role_scores[role]) }}</span>
+            <!-- Motivation Score -->
+            <div class="glass-card-strong p-8 mb-6 fade-in-up stagger-2">
+                <h3 class="text-2xl font-bold text-graphite mb-4">Overall Motivation Score</h3>
+                <div class="flex items-center space-x-6">
+                    <div class="w-32 h-32 rounded-full bg-gradient-to-br from-deep-growth to-fresh-shoot flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-white">{{ "%.1f" | format(scoring.motivation_score) }}</div>
+                            <div class="text-white/80 text-sm">/ 10.0</div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-graphite/80 text-lg">Your drive and engagement in learning</p>
+                        <div class="mt-4 w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                            <div class="h-4 bg-gradient-to-r from-deep-growth to-fresh-shoot rounded-full liquid-fill" 
+                                 style="width: {{ (scoring.motivation_score / 10 * 100)|int }}%"></div>
+                        </div>
+                    </div>
                 </div>
-                {% endfor %}
             </div>
-            <p class="section-note">These 4 roles best describe your working style</p>
-        </section>
 
-        <!-- Top Interests -->
-        <section class="interests-section">
-            <h2>Top Technical Interests</h2>
-            <div class="interest-list">
-                {% for interest in scoring.get_top_interests(5) %}
-                <div class="interest-item">
-                    <span class="interest-name">{{ interest.interest }}</span>
-                    <span class="interest-score">{{ "%.2f" | format(interest.score) }}</span>
+            <!-- Dominant Roles -->
+            <div class="glass-card-strong p-8 mb-6 fade-in-up stagger-3">
+                <h3 class="text-2xl font-bold text-graphite mb-4">Your Dominant Roles</h3>
+                <p class="text-graphite/70 mb-6">These roles best describe your working style</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for role in scoring.dominant_roles %}
+                    <div class="glass-card p-6 card-lift">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-graphite text-lg">{{ role }}</div>
+                                <div class="text-graphite/60 text-sm">Primary strength</div>
+                            </div>
+                            <div class="text-3xl font-bold text-deep-growth">{{ "%.1f" | format(scoring.raw_role_scores[role]) }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
-            <p class="section-note">Your top 5 technical interests</p>
-        </section>
 
-        <!-- Action Buttons -->
-        <section class="action-section">
-            <form method="POST" action="{{ url_for('scoring.retake_questionnaire') }}">
-                <button type="submit" class="btn btn-primary">Retake Questionnaire</button>
-            </form>
-        </section>
+            <!-- Top Interests -->
+            <div class="glass-card-strong p-8 mb-6 fade-in-up stagger-4">
+                <h3 class="text-2xl font-bold text-graphite mb-4">Top Technical Interests</h3>
+                <p class="text-graphite/70 mb-6">Your top 5 technical interests</p>
+                <div class="space-y-4">
+                    {% for interest in scoring.get_top_interests(5) %}
+                    <div class="glass-card p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-semibold text-graphite">{{ interest.interest }}</span>
+                            <span class="text-digital-violet font-bold">{{ "%.2f" | format(interest.score) }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                            <div class="h-2 bg-gradient-to-r from-digital-violet to-safety-orange rounded-full" 
+                                 style="width: {{ (interest.score / 10 * 100)|int }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="text-center fade-in-up stagger-5">
+                <form method="POST" action="{{ url_for('scoring.retake_questionnaire') }}">
+                    <button type="submit" class="btn-outline px-8 py-3">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Retake Questionnaire
+                    </button>
+                </form>
+            </div>
 
         {% else %}
-        <!-- No scores yet -->
-        <section class="no-scores-section">
-            <h2>Questionnaire Not Yet Completed</h2>
-            <p>Complete the questionnaire to see your profile scores and connect with the right collaborators.</p>
-            <a href="{{ url_for('scoring.questionnaire_form') }}" class="btn btn-primary">Start Questionnaire</a>
-        </section>
+            <!-- No Scores Yet -->
+            <div class="glass-card-strong p-12 text-center fade-in-up stagger-2">
+                <div class="text-6xl mb-6">📝</div>
+                <h3 class="text-3xl font-bold text-graphite mb-4">Questionnaire Not Yet Completed</h3>
+                <p class="text-graphite/70 text-lg mb-8 max-w-2xl mx-auto">
+                    Complete the questionnaire to see your profile scores and connect with the right collaborators.
+                </p>
+                <a href="{{ url_for('scoring.questionnaire_form') }}" class="btn-primary px-8 py-4 text-lg">
+                    Start Questionnaire
+                </a>
+            </div>
         {% endif %}
     </div>
-</body>
-</html>
+</div>
+
+{% endblock %}

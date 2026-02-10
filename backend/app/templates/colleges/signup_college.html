@@ -1,29 +1,82 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>College Signup</h2>
-
-<form method="POST" action="/signup/college">
-
-    <label>College Name</label>
-    <input type="text" name="name" required>
-
-    <label>Email</label>
-    <input type="email" name="email" required>
-
-    <label>City</label>
-    <input type="text" name="city" required>
-
-    <label>State</label>
-    <input type="text" name="state" required>
-
-    <label>Password</label>
-    <input type="password" name="password" required>
-
-    <label>Confirm Password</label>
-    <input type="password" name="confirm_password" required>
-
-    <button type="submit">Sign Up</button>
-</form>
+<div class="min-h-screen flex items-center justify-center p-8">
+    <div class="w-full max-w-2xl">
+        <div class="text-center mb-8 fade-in-up">
+            <div class="text-5xl mb-4">🏛️</div>
+            <h1 class="text-4xl font-bold text-graphite mb-3">Register Your College</h1>
+            <p class="text-graphite/60 text-lg">Join MeshWork and empower your students</p>
+        </div>
+        
+        <div class="glass-card-strong p-10 fade-in-up stagger-1">
+            <form method="POST" action="/signup/college" class="space-y-6">
+                
+                <!-- Basic Information -->
+                <div>
+                    <h3 class="text-xl font-bold text-graphite mb-4 flex items-center">
+                        <span class="w-8 h-8 rounded-full bg-gradient-to-r from-deep-growth to-fresh-shoot text-white flex items-center justify-center mr-3 text-sm">1</span>
+                        Basic Information
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-graphite font-medium mb-2">College Name *</label>
+                            <input type="text" name="name" class="input-glass" placeholder="e.g., XYZ Institute of Technology" required>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-graphite font-medium mb-2">City *</label>
+                                <input type="text" name="city" class="input-glass" placeholder="City" required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-graphite font-medium mb-2">State *</label>
+                                <input type="text" name="state" class="input-glass" placeholder="State" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Admin Account -->
+                <div class="pt-6 border-t border-graphite/20">
+                    <h3 class="text-xl font-bold text-graphite mb-4 flex items-center">
+                        <span class="w-8 h-8 rounded-full bg-gradient-to-r from-digital-violet to-safety-orange text-white flex items-center justify-center mr-3 text-sm">2</span>
+                        Admin Account
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-graphite font-medium mb-2">Admin Email *</label>
+                            <input type="email" name="email" class="input-glass" placeholder="admin@college.edu" required>
+                            <small class="text-graphite/60 text-xs block mt-1">This will be your login email</small>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-graphite font-medium mb-2">Password *</label>
+                                <input type="password" name="password" class="input-glass" placeholder="Minimum 6 characters" required minlength="6">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-graphite font-medium mb-2">Confirm Password *</label>
+                                <input type="password" name="confirm_password" class="input-glass" placeholder="Re-enter password" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full btn-accent mt-8">Register College</button>
+            </form>
+            
+            <div class="mt-6 pt-6 border-t border-graphite/20 text-center">
+                <p class="text-graphite/70">
+                    Already registered? <a href="/login/college" class="text-digital-violet font-semibold hover:text-safety-orange transition-colors">Login here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

@@ -1,33 +1,237 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>User Signup</h2>
+<!-- Split Screen Signup -->
+<div class="min-h-screen flex">
+    <!-- Left Side: Dark Gradient -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-graphite via-deep-growth to-graphite items-center justify-center p-12">
+        <div class="text-center fade-in-up">
+            <div class="text-6xl font-bold text-white mb-4">✨</div>
+            <h2 class="text-4xl font-bold text-white mb-6">Join MeshWork</h2>
+            <p class="text-xl text-white/80 max-w-md">Connect with peers, join communities, and build amazing projects together</p>
+            
+            <!-- Stats -->
+            <div class="mt-12 grid grid-cols-2 gap-6">
+                <div class="glass-card p-4">
+                    <div class="text-3xl font-bold text-white">500+</div>
+                    <div class="text-white/70">Students</div>
+                </div>
+                <div class="glass-card p-4">
+                    <div class="text-3xl font-bold text-white">50+</div>
+                    <div class="text-white/70">Communities</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side: Signup Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div class="w-full max-w-md">
+            <div class="glass-card-strong p-8 fade-in-up">
+                <h2 class="text-3xl font-bold text-graphite mb-2">Student Signup</h2>
+                <p class="text-graphite/60 mb-8">Create your account</p>
+                
+                <form method="POST" action="/signup/user" id="signupForm" class="space-y-5">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-graphite font-medium mb-2">First Name *</label>
+                            <input type="text" name="first_name" id="first_name" class="input-glass" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-graphite font-medium mb-2">Last Name *</label>
+                            <input type="text" name="last_name" id="last_name" class="input-glass" required>
+                        </div>
+                    </div>
 
-<form method="POST" action="/signup/user">
+                    <div>
+                        <label class="block text-graphite font-medium mb-2">Username *</label>
+                        <input type="text" name="username" id="username" class="input-glass" required minlength="3" maxlength="150" placeholder="Choose a unique username">
+                        <span id="username-feedback" class="text-sm block mt-1"></span>
+                    </div>
 
-    <label>Username</label>
-    <input type="text" name="username" required>
+                    <div>
+                        <label class="block text-graphite font-medium mb-2">College Email *</label>
+                        <input type="email" name="email" id="email" class="input-glass" required placeholder="youremail@college.edu">
+                        <small class="text-graphite/60 text-xs block mt-1">Use your college-provided email address</small>
+                        <span id="email-feedback" class="text-sm block mt-1"></span>
+                    </div>
 
-    <label>Email</label>
-    <input type="email" name="email" required>
+                    <div id="college-display" class="glass-card p-4" style="display:none;">
+                        <div class="mb-2">
+                            <strong class="text-graphite">Detected College:</strong>
+                            <input type="text" id="college_name_display" readonly class="bg-transparent border-none font-bold text-deep-growth">
+                            <input type="hidden" name="college_id" id="college_id">
+                        </div>
+                        <span id="whitelist-status" class="block text-sm"></span>
+                    </div>
 
-    <label>Select College</label>
-    <select name="college_id" required>
-        <option value="">-- Select your college --</option>
-        {% for college in colleges %}
-            <option value="{{ college.id }}">
-                {{ college.name }} ({{ college.city }}, {{ college.state }})
-            </option>
-        {% endfor %}
-    </select>
+                    <div>
+                        <label class="block text-graphite font-medium mb-2">Password *</label>
+                        <input type="password" name="password" id="password" class="input-glass" required minlength="6" placeholder="Minimum 6 characters">
+                    </div>
 
-    <label>Password</label>
-    <input type="password" name="password" required>
+                    <div>
+                        <label class="block text-graphite font-medium mb-2">Confirm Password *</label>
+                        <input type="password" name="confirm_password" id="confirm_password" class="input-glass" required placeholder="Re-enter your password">
+                    </div>
 
-    <label>Confirm Password</label>
-    <input type="password" name="confirm_password" required>
+                    <button type="submit" id="submitBtn" class="w-full btn-primary">Sign Up</button>
+                </form>
+                
+                <div class="mt-6 pt-6 border-t border-graphite/20">
+                    <p class="text-center text-graphite/70 mb-4">
+                        Already have an account? <a href="/login/user" class="text-deep-growth font-semibold hover:text-fresh-shoot transition-colors">Login here</a>
+                    </p>
+                    <p class="text-center text-graphite/50 text-sm mb-3">Looking for:</p>
+                    <div class="flex gap-2 justify-center">
+                        <a href="/login/personnel" class="px-3 py-1 text-xs rounded-lg border border-fresh-shoot text-fresh-shoot hover:bg-fresh-shoot hover:text-white transition-all">Personnel Login</a>
+                        <a href="/login/college" class="px-3 py-1 text-xs rounded-lg border border-digital-violet text-digital-violet hover:bg-digital-violet hover:text-white transition-all">College Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <button type="submit">Sign Up</button>
-</form>
+<script>
+let usernameTimeout;
+let emailTimeout;
+let usernameAvailable = false;
+let emailValid = false;
+
+// Check username availability
+async function checkUsernameAvailability() {
+    const username = document.getElementById('username').value.trim();
+    const feedback = document.getElementById('username-feedback');
+    
+    if (username.length < 3) {
+        feedback.className = 'form-text text-muted';
+        feedback.textContent = 'Minimum 3 characters';
+        usernameAvailable = false;
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/check-username', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: username})
+        });
+        
+        const data = await response.json();
+        
+        if (data.available) {
+            feedback.className = 'text-deep-growth font-semibold';
+            feedback.textContent = '✓ Username available';
+            usernameAvailable = true;
+        } else {
+            feedback.className = 'text-safety-orange font-semibold';
+            feedback.textContent = '✗ ' + data.message;
+            usernameAvailable = false;
+        }
+    } catch (error) {
+        feedback.className = 'text-safety-orange font-semibold';
+        feedback.textContent = '✗ Error checking username';
+        usernameAvailable = false;
+    }
+}
+
+// Detect college from email
+async function detectCollege() {
+    const email = document.getElementById('email').value.trim();
+    const feedback = document.getElementById('email-feedback');
+    const collegeDisplay = document.getElementById('college-display');
+    const collegeNameDisplay = document.getElementById('college_name_display');
+    const collegeIdInput = document.getElementById('college_id');
+    const whitelistStatus = document.getElementById('whitelist-status');
+    
+    if (!email.includes('@')) {
+        feedback.textContent = '';
+        collegeDisplay.style.display = 'none';
+        emailValid = false;
+        return;
+    }
+    
+    feedback.className = 'text-graphite/60 text-sm block mt-1';
+    feedback.textContent = 'Checking email...';
+    
+    try {
+        const response = await fetch('/api/detect-college', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            collegeNameDisplay.value = data.college_name;
+            collegeIdInput.value = data.college_id;
+            collegeDisplay.style.display = 'block';
+            
+            feedback.className = 'text-deep-growth font-semibold text-sm block mt-1';
+            feedback.textContent = '✓ College detected: ' + data.college_name;
+            
+            if (data.whitelisted) {
+                whitelistStatus.className = 'text-deep-growth font-bold';
+                whitelistStatus.textContent = '✓ Email verified and whitelisted';
+                emailValid = true;
+            } else {
+                whitelistStatus.className = 'text-safety-orange font-bold';
+                whitelistStatus.textContent = '✗ Email not whitelisted. Please contact your college administrator.';
+                emailValid = false;
+            }
+        } else {
+            feedback.className = 'text-safety-orange font-semibold text-sm block mt-1';
+            feedback.textContent = '✗ ' + data.error;
+            collegeDisplay.style.display = 'none';
+            emailValid = false;
+        }
+    } catch (error) {
+        feedback.className = 'text-safety-orange font-semibold text-sm block mt-1';
+        feedback.textContent = '✗ Error checking email';
+        collegeDisplay.style.display = 'none';
+        emailValid = false;
+    }
+}
+
+// Debounced username check
+document.getElementById('username').addEventListener('input', function() {
+    clearTimeout(usernameTimeout);
+    usernameTimeout = setTimeout(checkUsernameAvailability, 500);
+});
+
+// Debounced email check
+document.getElementById('email').addEventListener('input', function() {
+    clearTimeout(emailTimeout);
+    emailTimeout = setTimeout(detectCollege, 500);
+});
+
+// Form submission validation
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+    if (!usernameAvailable) {
+        e.preventDefault();
+        alert('Please choose an available username');
+        return false;
+    }
+    
+    if (!emailValid) {
+        e.preventDefault();
+        alert('Please use a valid and whitelisted college email');
+        return false;
+    }
+    
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Passwords do not match');
+        return false;
+    }
+});
+</script>
 
 {% endblock %}

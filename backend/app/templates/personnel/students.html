@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8 fade-in-up">
+            <div>
+                <h1 class="text-4xl font-bold text-graphite mb-2">Students</h1>
+                <p class="text-graphite/70">{{ personnel.college.name }}</p>
+            </div>
+            <a href="/personnel/dashboard" class="btn-outline">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="glass-card-strong p-6 mb-8 fade-in-up stagger-1">
+            <div class="flex items-center space-x-4">
+                <div class="text-4xl font-bold text-deep-growth">{{ students|length }}</div>
+                <div class="text-graphite/70">Total Registered Students</div>
+            </div>
+        </div>
+
+        {% if students %}
+        <!-- Students Table -->
+        <div class="glass-card-strong overflow-hidden fade-in-up stagger-2">
+            <div class="p-6 border-b border-graphite/20">
+                <h2 class="text-2xl font-bold text-graphite">Student List</h2>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-white/50 border-b border-graphite/20">
+                            <th class="text-left py-4 px-6 text-graphite font-semibold">Name</th>
+                            <th class="text-left py-4 px-6 text-graphite font-semibold">Username</th>
+                            <th class="text-left py-4 px-6 text-graphite font-semibold">Email</th>
+                            <th class="text-left py-4 px-6 text-graphite font-semibold">Level</th>
+                            <th class="text-left py-4 px-6 text-graphite font-semibold">XP</th>
+                            <th class="text-left py-4 px-6 text-graphite font-semibold">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr class="border-b border-graphite/10 hover:bg-white/50 transition-colors">
+                            <td class="py-4 px-6 text-graphite font-medium">{{ student.first_name }} {{ student.last_name }}</td>
+                            <td class="py-4 px-6 text-graphite/70">{{ student.username }}</td>
+                            <td class="py-4 px-6 text-graphite/70">{{ student.email }}</td>
+                            <td class="py-4 px-6">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-digital-violet/20 text-digital-violet font-semibold">
+                                    {{ student.level }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-deep-growth font-bold">{{ student.xp }}</td>
+                            <td class="py-4 px-6 text-graphite/70">{{ student.created_at.strftime('%Y-%m-%d') if student.created_at else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="glass-card-strong p-16 text-center fade-in-up stagger-2">
+            <div class="text-6xl mb-6">📚</div>
+            <h3 class="text-2xl font-bold text-graphite mb-4">No Students Yet</h3>
+            <p class="text-graphite/70 mb-6">Students will appear here once they register</p>
+            <a href="/personnel/whitelist" class="btn-primary">Manage Whitelist</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

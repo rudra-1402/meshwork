@@ -28,7 +28,9 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), nullable=False)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
@@ -78,6 +80,20 @@ class User(db.Model):
     def check_password(self, password):
         """Verify password against hash"""
         return check_password_hash(self.password_hash, password)
+    
+    def get_full_name(self):
+        """Return full name"""
+        return f"{self.first_name} {self.last_name}"
+    
+    def update_username(self, new_username):
+        """
+        Update username with availability check.
+        Returns (success: bool, message: str)
+        """
+        if User.query.filter_by(username=new_username).first():
+            return False, "Username already taken"
+        self.username = new_username
+        return True, "Username updated successfully"
     
     # ===== LEVEL CALCULATION (Pure Functions - OK in Model) =====
     
@@ -188,6 +204,9 @@ class User(db.Model):
         return {
             'user_id': self.id,
             'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'full_name': self.get_full_name(),
             'level': self.level,
             'xp': self.xp,
             'xp_progress': level_info,
