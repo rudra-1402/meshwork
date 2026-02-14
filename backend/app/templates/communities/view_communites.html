@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen p-8">
+    <div class="max-w-5xl mx-auto">
+        <!-- Community Header -->
+        <div class="glass-card-strong p-8 mb-8 fade-in-up">
+            <div class="flex items-start justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold text-2xl">
+                        {{ community.community_name[0].upper() }}
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-graphite mb-2">{{ community.community_name }}</h1>
+                        <p class="text-graphite/70">
+                            <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            Subject: {{ community.subject }}
+                        </p>
+                    </div>
+                </div>
+                <a href="{{ url_for('community_routes.explore_communities') }}" class="btn-outline">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Explore
+                </a>
+            </div>
+        </div>
+
+        {% if is_admin %}
+        <!-- Admin Message Form -->
+        <div class="glass-card-strong p-6 mb-8 fade-in-up stagger-1">
+            <h3 class="text-xl font-bold text-graphite mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-deep-growth" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+                Send Message (Admin)
+            </h3>
+            <form method="POST" action="{{ url_for('community_routes.send_message', community_id=community.community_id) }}">
+                <textarea 
+                    name="message" 
+                    rows="4" 
+                    required 
+                    class="input-glass w-full mb-4"
+                    placeholder="Type your message here..."
+                ></textarea>
+                <button type="submit" class="btn-primary">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                    Send Message
+                </button>
+            </form>
+        </div>
+        
+        <!-- Admin Task Management -->
+        <div class="glass-card-strong p-6 mb-8 fade-in-up stagger-2">
+            <h3 class="text-xl font-bold text-graphite mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+                Task Management
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="{{ url_for('community_routes.create_task', community_id=community.community_id) }}" class="glass-card p-4 hover-scale smooth-transition flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-safety-orange to-digital-violet flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-graphite">Create Task</h4>
+                        <p class="text-graphite/70 text-sm">Assign new task</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('community_routes.view_tasks', community_id=community.community_id) }}" class="glass-card p-4 hover-scale smooth-transition flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-deep-growth to-fresh-shoot flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-graphite">View Tasks</h4>
+                        <p class="text-graphite/70 text-sm">Manage existing tasks</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-card-bg/80 border border-text-secondary/20 rounded-lg p-4 mb-8 fade-in-up stagger-1">
+            <p class="text-graphite/70 italic text-center">
+                <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Only admin can send messages in this community
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Messages Section -->
+        <div class="glass-card-strong fade-in-up stagger-2">
+            <div class="p-6 border-b border-graphite/20">
+                <h3 class="text-2xl font-bold text-graphite flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    Messages
+                </h3>
+            </div>
+
+            {% if messages %}
+            <div class="divide-y divide-graphite/10">
+                {% for msg in messages %}
+                <div class="p-6 hover:bg-card-hover/50 transition-colors">
+                    <p class="text-graphite mb-2">{{ msg.message }}</p>
+                    <p class="text-graphite/50 text-sm flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {{ msg.messaged_at }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="p-16 text-center">
+                <div class="text-6xl mb-6">💬</div>
+                <p class="text-graphite/70">No messages yet. Be the first to start a conversation!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

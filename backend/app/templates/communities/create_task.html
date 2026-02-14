@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="glass-card-strong p-8 mb-8 fade-in-up">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-3xl font-bold text-graphite flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create New Task
+                </h1>
+                <a href="{{ url_for('community_routes.view_community', community_id=community.community_id) }}" class="btn-outline">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Community
+                </a>
+            </div>
+            <p class="text-graphite/70">Creating task for: <span class="font-semibold text-graphite">{{ community.community_name }}</span></p>
+        </div>
+
+        <!-- Task Form -->
+        <div class="glass-card-strong p-8 fade-in-up stagger-1">
+            <form method="POST" action="{{ url_for('community_routes.create_task', community_id=community.community_id) }}">
+                <!-- Title -->
+                <div class="mb-6">
+                    <label class="block text-graphite font-semibold mb-2">
+                        Task Title *
+                    </label>
+                    <input 
+                        type="text" 
+                        name="title" 
+                        required 
+                        class="input-glass w-full"
+                        placeholder="e.g., Complete Python Module 1"
+                    />
+                </div>
+
+                <!-- Description -->
+                <div class="mb-6">
+                    <label class="block text-graphite font-semibold mb-2">
+                        Description
+                    </label>
+                    <textarea 
+                        name="description" 
+                        rows="4" 
+                        class="input-glass w-full"
+                        placeholder="Detailed description of the task..."
+                    ></textarea>
+                </div>
+
+                <!-- Difficulty -->
+                <div class="mb-6">
+                    <label class="block text-graphite font-semibold mb-2">
+                        Difficulty Level
+                    </label>
+                    <select name="difficulty" class="input-glass w-full">
+                        <option value="Easy">Easy</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
+
+                <!-- XP Reward -->
+                <div class="mb-6">
+                    <label class="block text-graphite font-semibold mb-2">
+                        Maximum XP Reward
+                    </label>
+                    <input 
+                        type="number" 
+                        name="max_xp_reward" 
+                        min="0" 
+                        value="100"
+                        class="input-glass w-full"
+                        placeholder="100"
+                    />
+                    <p class="text-graphite/60 text-sm mt-1">Total XP awarded for completing all actions</p>
+                </div>
+
+                <!-- Actions -->
+                <div class="mb-6">
+                    <label class="block text-graphite font-semibold mb-2">
+                        Task Actions (one per line)
+                    </label>
+                    <textarea 
+                        name="actions" 
+                        rows="6" 
+                        class="input-glass w-full"
+                        placeholder="Set up development environment&#10;Complete module exercises&#10;Submit project code&#10;Write documentation"
+                    ></textarea>
+                    <p class="text-graphite/60 text-sm mt-1">Each action is a sub-task that members can complete individually</p>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-end space-x-4">
+                    <a href="{{ url_for('community_routes.view_community', community_id=community.community_id) }}" class="btn-outline">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn-primary">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Create Task
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

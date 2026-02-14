@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Split Screen Login -->
+<div class="min-h-screen flex">
+    <!-- Left Side: Dark Gradient -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-graphite via-deep-growth to-graphite items-center justify-center p-12">
+        <div class="text-center fade-in-up">
+            <div class="text-6xl font-bold text-white mb-4">🎓</div>
+            <h2 class="text-4xl font-bold text-white mb-6">Welcome Back!</h2>
+            <p class="text-xl text-white/80 max-w-md">Continue your journey of collaboration and growth</p>
+            
+            <!-- Floating Icons -->
+            <div class="mt-12 flex justify-center space-x-8">
+                <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover-scale">
+                    <span class="text-2xl">💻</span>
+                </div>
+                <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover-scale">
+                    <span class="text-2xl">🎨</span>
+                </div>
+                <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover-scale">
+                    <span class="text-2xl">🚀</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side: Login Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div class="w-full max-w-md">
+            <div class="glass-card-strong p-8 fade-in-up">
+                <h2 class="text-3xl font-bold text-graphite mb-2">Student Login</h2>
+                <p class="text-graphite/60 mb-8">Access your dashboard</p>
+                
+                <form method="POST" action="/login/user" class="space-y-6">
+                    <div>
+                        <label class="block text-graphite font-medium mb-2">Email</label>
+                        <input type="email" name="email" class="input-glass" placeholder="your.email@college.edu" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-graphite font-medium mb-2">Password</label>
+                        <input type="password" name="password" class="input-glass" placeholder="Enter your password" required>
+                    </div>
+
+                    <button type="submit" class="w-full btn-primary">Login</button>
+                </form>
+                
+                <div class="mt-8 pt-6 border-t border-graphite/20">
+                    <p class="text-center text-graphite/70 mb-4">
+                        Don't have an account? <a href="/signup/user" class="text-deep-growth font-semibold hover:text-fresh-shoot transition-colors">Sign up</a>
+                    </p>
+                    <p class="text-center text-graphite/50 text-sm mb-3">Looking for:</p>
+                    <div class="flex gap-2 justify-center">
+                        <a href="/login/personnel" class="px-4 py-2 text-sm rounded-lg border border-fresh-shoot text-fresh-shoot hover:bg-fresh-shoot hover:text-white transition-all">Personnel Login</a>
+                        <a href="/login/college" class="px-4 py-2 text-sm rounded-lg border border-digital-violet text-digital-violet hover:bg-digital-violet hover:text-white transition-all">College Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

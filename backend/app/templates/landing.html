@@ -1,10 +1,126 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <h1>Welcome to MeshWork!</h1>
-    <p>A collaborative platform to connect, share, and grow together.</p>
 
-    <a href="/login">Login</a>
-    <br>
-    <a href="/signup">Sign-up</a>
+<!-- Hero Section -->
+<div class="min-h-screen flex items-center justify-center px-4 py-20">
+    <div class="max-w-7xl mx-auto w-full">
+        <!-- Hero Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
+            <!-- Left: Hero Text -->
+            <div class="fade-in-up">
+                <h1 class="text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+                    <span class="text-gradient">Welcome to</span><br/>
+                    <span class="text-graphite">MeshWork</span>
+                </h1>
+                <p class="text-2xl text-graphite/70 mb-8 font-medium">
+                    Connect, Collaborate, and Create Together
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="/signup/user" class="btn-primary">Get Started</a>
+                    <a href="#roles" class="btn-outline">Explore Roles</a>
+                </div>
+            </div>
+            
+            <!-- Right: Morphing Blob -->
+            <div class="flex justify-center fade-in-up stagger-1">
+                <div class="relative w-80 h-80">
+                    <div class="blob-morph absolute inset-0 bg-gradient-to-br from-mint-vapor via-fresh-shoot to-deep-growth opacity-80"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center text-white z-10">
+                            <div class="text-6xl font-bold mb-2">500+</div>
+                            <div class="text-xl">Students</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Role Cards -->
+        <div id="roles" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Students Card -->
+            <div class="glass-card p-8 card-lift fade-in-up stagger-2">
+                <div class="text-center">
+                    <!-- Icon -->
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-deep-growth to-fresh-shoot flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold text-graphite mb-3">Students</h3>
+                    <p class="text-graphite/70 mb-6">Join communities and collaborate with peers on exciting projects</p>
+                    
+                    <div class="space-y-3">
+                        <a href="/login/user" class="block w-full btn-primary text-center">Login</a>
+                        <a href="/signup/user" class="block w-full btn-outline text-center">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Personnel Card -->
+            <div class="glass-card p-8 card-lift fade-in-up stagger-3">
+                <div class="text-center">
+                    <!-- Icon -->
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold text-graphite mb-3">Personnel</h3>
+                    <p class="text-graphite/70 mb-2">Manage students and college operations</p>
+                    <p class="text-sm text-graphite/50 mb-6">For HOD, Faculty, and Staff</p>
+                    
+                    <div class="space-y-3">
+                        <a href="/login/personnel" class="block w-full btn-success text-center">Login</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Colleges Card -->
+            <div class="glass-card p-8 card-lift fade-in-up stagger-4">
+                <div class="text-center">
+                    <!-- Icon -->
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-digital-violet to-safety-orange flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold text-graphite mb-3">Colleges</h3>
+                    <p class="text-graphite/70 mb-6">Register your institution and empower students</p>
+                    
+                    <div class="space-y-3">
+                        <a href="/login/college" class="block w-full btn-accent text-center">Login</a>
+                        <a href="/signup/college" class="block w-full btn-outline text-center">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Floating Stats -->
+        <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 fade-in-up stagger-5">
+            <div class="glass-card p-6 text-center">
+                <div class="text-4xl font-bold text-deep-growth mb-2">500+</div>
+                <div class="text-graphite/70">Active Students</div>
+            </div>
+            <div class="glass-card p-6 text-center">
+                <div class="text-4xl font-bold text-digital-violet mb-2">50+</div>
+                <div class="text-graphite/70">Communities</div>
+            </div>
+            <div class="glass-card p-6 text-center">
+                <div class="text-4xl font-bold text-safety-orange mb-2">100+</div>
+                <div class="text-graphite/70">Projects</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+
 {% endblock %}

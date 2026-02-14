@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="glass-card-strong p-8 mb-8 fade-in-up">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-graphite flex items-center mb-2">
+                        <svg class="w-8 h-8 mr-3 text-deep-growth" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                        Community Tasks
+                    </h1>
+                    <p class="text-graphite/70">{{ community.community_name }}</p>
+                </div>
+                <div class="flex space-x-4">
+                    {% if is_admin %}
+                    <a href="{{ url_for('community_routes.create_task', community_id=community.community_id) }}" class="btn-primary">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Create Task
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('community_routes.view_community', community_id=community.community_id) }}" class="btn-outline">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Community
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks List -->
+        {% if tasks %}
+        <div class="grid grid-cols-1 gap-6">
+            {% for task in tasks %}
+            <div class="glass-card-strong p-6 fade-in-up">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <h3 class="text-2xl font-bold text-graphite">{{ task.title }}</h3>
+                            <span class="px-3 py-1 rounded-full text-sm font-semibold
+                                {% if task.difficulty == 'Easy' %}bg-green-500/20 text-green-400 border border-green-500/40
+                                {% elif task.difficulty == 'Hard' %}bg-red-500/20 text-red-400 border border-red-500/40
+                                {% else %}bg-yellow-500/20 text-yellow-400 border border-yellow-500/40{% endif %}">
+                                {{ task.difficulty }}
+                            </span>
+                            {% if task.is_active %}
+                            <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/40 text-sm font-semibold">Active</span>
+                            {% else %}
+                            <span class="px-3 py-1 rounded-full bg-gray-500/20 text-gray-400 border border-gray-500/40 text-sm font-semibold">Inactive</span>
+                            {% endif %}
+                        </div>
+                        {% if task.description %}
+                        <p class="text-graphite/70 mb-3">{{ task.description }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-bold text-digital-violet">{{ task.max_xp_reward }} XP</div>
+                        <div class="text-graphite/60 text-sm">Max Reward</div>
+                    </div>
+                </div>
+
+                <!-- Actions List -->
+                {% if task.actions %}
+                <div class="border-t border-graphite/10 pt-4">
+                    <h4 class="font-semibold text-graphite mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Task Actions ({{ task.actions|length }})
+                    </h4>
+                    <div class="space-y-2">
+                        {% for action in task.actions %}
+                        <div class="glass-card p-3 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-6 h-6 rounded border-2 border-graphite/30"></div>
+                                <span class="text-graphite">{{ action.text }}</span>
+                            </div>
+                            <span class="text-digital-violet font-semibold">+{{ action.xp }} XP</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Admin Actions -->
+                {% if is_admin %}
+                <div class="border-t border-graphite/10 pt-4 mt-4 flex items-center justify-end space-x-3">
+                    <button class="btn-outline text-sm">Edit Task</button>
+                    <button class="btn-outline text-sm text-red-400 border-red-500/40 hover:bg-red-500/20">Delete Task</button>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass-card-strong p-16 text-center fade-in-up">
+            <div class="text-6xl mb-6">📋</div>
+            <h3 class="text-2xl font-bold text-graphite mb-2">No Tasks Yet</h3>
+            <p class="text-graphite/70 mb-6">There are no tasks in this community yet.</p>
+            {% if is_admin %}
+            <a href="{{ url_for('community_routes.create_task', community_id=community.community_id) }}" class="btn-primary">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Create First Task
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8 fade-in-up">
+            <div>
+                <h1 class="text-4xl font-bold text-graphite mb-2">Explore Communities</h1>
+                <p class="text-graphite/70">Discover and join communities</p>
+            </div>
+            <div class="space-x-3">
+                <a href="{{ url_for('community_routes.create_community') }}" class="btn-primary">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create Community
+                </a>
+                <a href="{{ url_for('dashboard.dashboard') }}" class="btn-outline">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        {% if communities %}
+        <!-- Communities Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for community in communities %}
+            <div class="glass-card-strong p-6 fade-in-up stagger-{{ loop.index % 3 }}">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold text-xl">
+                        {{ community.community_name[0].upper() }}
+                    </div>
+                    {% if community.community_id in joined_ids %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-deep-growth/20 text-deep-growth font-semibold text-xs">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Joined
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <h3 class="text-xl font-bold text-graphite mb-2">{{ community.community_name }}</h3>
+                <p class="text-graphite/70 text-sm mb-1">
+                    <span class="font-semibold">Subject:</span> {{ community.subject }}
+                </p>
+                
+                <div class="mt-6 flex space-x-3">
+                    {% if community.community_id in joined_ids %}
+                    <a href="{{ url_for('community_routes.view_community', community_id=community.community_id) }}" 
+                       class="btn-primary flex-1 text-center">
+                        View Community
+                    </a>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('community_routes.join_community', community_id=community.community_id) }}" class="flex-1">
+                        <button type="submit" class="btn-secondary w-full">
+                            Join Community
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="glass-card-strong p-16 text-center fade-in-up">
+            <div class="text-6xl mb-6">🌐</div>
+            <h3 class="text-2xl font-bold text-graphite mb-4">No Communities Yet</h3>
+            <p class="text-graphite/70 mb-6">Be the first to create a community!</p>
+            <a href="{{ url_for('community_routes.create_community') }}" class="btn-primary">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Create Community
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

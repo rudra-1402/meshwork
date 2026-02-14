@@ -1,0 +1,548 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8 fade-in-up">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center mx-auto mb-4">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-graphite mb-2">Complete Your Profile</h1>
+            <p class="text-graphite/70">Help us understand your skills and interests by answering these questions.</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="glass-card-strong p-4 mb-8 fade-in-up stagger-1">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-graphite font-medium">Progress</span>
+                <span class="text-graphite/70 text-sm" id="progressText">Step 1 of 8</span>
+            </div>
+            <div class="w-full bg-card-bg rounded-full h-2 border border-text-secondary/20">
+                <div id="progressBar" class="bg-gradient-to-r from-fresh-shoot to-deep-growth h-2 rounded-full transition-all duration-500" style="width: 12.5%"></div>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="bg-red-500/20 border border-red-500/50 text-red-300 px-6 py-4 rounded-lg mb-6 fade-in-up stagger-2">
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="bg-deep-growth/20 border border-deep-growth/50 text-deep-growth px-6 py-4 rounded-lg mb-6 fade-in-up stagger-2">
+            <strong>Success!</strong> {{ success }}
+        </div>
+        {% endif %}
+
+        <form id="questionnaireForm" method="POST" action="{{ url_for('scoring.submit_questionnaire') }}">
+            
+            <!-- Question 1: Project Excitement -->
+            <div class="question-section glass-card-strong p-6 mb-6 fade-in-up" data-step="1">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold mr-3">
+                        1
+                    </div>
+                    <h2 class="text-2xl font-bold text-graphite">Project Excitement</h2>
+                </div>
+                <label class="block text-graphite mb-3" for="q1_project_excitement">
+                    Describe a coding project that would genuinely excite you to work on for weeks or months. 
+                    What problem does it solve, and what part of building it excites you most?
+                </label>
+                <textarea 
+                    id="q1_project_excitement" 
+                    name="q1_project_excitement" 
+                    rows="5" 
+                    required 
+                    class="input-glass w-full"
+                    placeholder="Example: I want to build a collaborative code editor because..."></textarea>
+            </div>
+
+            <!-- Question 2: Team Roles -->
+            <div class="question-section glass-card-strong p-6 mb-6 fade-in-up hidden" data-step="2">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold mr-3">
+                        2
+                    </div>
+                    <h2 class="text-2xl font-bold text-graphite">Team Roles</h2>
+                </div>
+                <label class="block text-graphite mb-4">Which role do you naturally gravitate toward in a team? <span class="text-safety-orange">(Choose up to 2)</span></label>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6" id="teamRolesGroup">
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q2_team_roles" value="Building core features" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Building core features</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q2_team_roles" value="Designing architecture" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Designing architecture</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q2_team_roles" value="Working on UI/UX" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Working on UI/UX</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q2_team_roles" value="Experimenting with new ideas" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Experimenting with new ideas</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q2_team_roles" value="Optimizing or fixing things" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Optimizing or fixing things</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q2_team_roles" value="Leading or coordinating the team" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Leading or coordinating the team</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q2_team_roles" value="Learning while contributing" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Learning while contributing</span>
+                    </label>
+                </div>
+                <div id="teamRolesError" class="text-safety-orange text-sm mb-4 hidden">Please select 1-2 roles</div>
+
+                <label class="block text-graphite mb-3" for="q2_explanation">Explain why you chose those roles:</label>
+                <textarea 
+                    id="q2_explanation" 
+                    name="q2_explanation" 
+                    rows="3" 
+                    required 
+                    class="input-glass w-full"
+                    placeholder="I chose these roles because..."></textarea>
+            </div>
+
+            <!-- Question 3: Depth vs Breadth -->
+            <div class="question-section glass-card-strong p-6 mb-6 fade-in-up hidden" data-step="3">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold mr-3">
+                        3
+                    </div>
+                    <h2 class="text-2xl font-bold text-graphite">Technical Depth vs Breadth</h2>
+                </div>
+                <label class="block text-graphite mb-3" for="q3_depth_vs_breadth">
+                    On a scale of 1â€“5, where do you fall?<br>
+                    <span class="text-sm text-graphite/70">1 = Deeply specialize in one area | 5 = Explore many areas broadly</span>
+                </label>
+                <select id="q3_depth_vs_breadth" name="q3_depth_vs_breadth" required class="input-glass w-full mb-6">
+                    <option value="">-- Select --</option>
+                    <option value="1">1 - Deep specialization</option>
+                    <option value="2">2 - Mostly deep, some breadth</option>
+                    <option value="3">3 - Balanced</option>
+                    <option value="4">4 - Mostly broad, some depth</option>
+                    <option value="5">5 - Broad exploration</option>
+                </select>
+
+                <label class="block text-graphite mb-3" for="q3_explanation">Explain your choice:</label>
+                <textarea 
+                    id="q3_explanation" 
+                    name="q3_explanation" 
+                    rows="3" 
+                    required 
+                    class="input-glass w-full"
+                    placeholder="I chose this because..."></textarea>
+            </div>
+
+            <!-- Question 4: Problem Solving Style -->
+            <div class="question-section glass-card-strong p-6 mb-6 fade-in-up hidden" data-step="4">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold mr-3">
+                        4
+                    </div>
+                    <h2 class="text-2xl font-bold text-graphite">Problem Solving Style</h2>
+                </div>
+                <label class="block text-graphite mb-3" for="q4_problem_solving">
+                    Describe your approach to solving a complex technical problem. 
+                    Do you prefer to dive deep, collaborate with others, research extensively, or something else?
+                </label>
+                <textarea 
+                    id="q4_problem_solving" 
+                    name="q4_problem_solving" 
+                    rows="4" 
+                    required 
+                    class="input-glass w-full"
+                    placeholder="My approach is..."></textarea>
+            </div>
+
+            <!-- Question 5: Experience Level -->
+            <div class="question-section glass-card-strong p-6 mb-6 fade-in-up hidden" data-step="5">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold mr-3">
+                        5
+                    </div>
+                    <h2 class="text-2xl font-bold text-graphite">Your Experience</h2>
+                </div>
+                <p class="text-graphite/70 mb-6">Rate 1-5, where 5 = very experienced</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-graphite font-medium mb-2" for="q5_hackathons">Hackathons:</label>
+                        <select id="q5_hackathons" name="q5_hackathons" required class="input-glass w-full">
+                            <option value="">-- Select --</option>
+                            <option value="1">1 - Never</option>
+                            <option value="2">2 - Once or twice</option>
+                            <option value="3">3 - A few times</option>
+                            <option value="4">4 - Regularly</option>
+                            <option value="5">5 - Very frequently</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-graphite font-medium mb-2" for="q5_competitions">Competitions:</label>
+                        <select id="q5_competitions" name="q5_competitions" required class="input-glass w-full">
+                            <option value="">-- Select --</option>
+                            <option value="1">1 - Never</option>
+                            <option value="2">2 - Once or twice</option>
+                            <option value="3">3 - A few times</option>
+                            <option value="4">4 - Regularly</option>
+                            <option value="5">5 - Very frequently</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-graphite font-medium mb-2" for="q5_team_projects">Team Projects:</label>
+                        <select id="q5_team_projects" name="q5_team_projects" required class="input-glass w-full">
+                            <option value="">-- Select --</option>
+                            <option value="1">1 - Never</option>
+                            <option value="2">2 - Once or twice</option>
+                            <option value="3">3 - A few times</option>
+                            <option value="4">4 - Regularly</option>
+                            <option value="5">5 - Very frequently</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-graphite font-medium mb-2" for="q5_open_source">Open Source:</label>
+                        <select id="q5_open_source" name="q5_open_source" required class="input-glass w-full">
+                            <option value="">-- Select --</option>
+                            <option value="1">1 - Never</option>
+                            <option value="2">2 - Once or twice</option>
+                            <option value="3">3 - A few times</option>
+                            <option value="4">4 - Regularly</option>
+                            <option value="5">5 - Very frequently</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-graphite font-medium mb-2" for="q5_research">Research Projects:</label>
+                        <select id="q5_research" name="q5_research" required class="input-glass w-full">
+                            <option value="">-- Select --</option>
+                            <option value="1">1 - Never</option>
+                            <option value="2">2 - Once or twice</option>
+                            <option value="3">3 - A few times</option>
+                            <option value="4">4 - Regularly</option>
+                            <option value="5">5 - Very frequently</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 6: Technical Interests -->
+            <div class="question-section glass-card-strong p-6 mb-6 fade-in-up hidden" data-step="6">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold mr-3">
+                        6
+                    </div>
+                    <h2 class="text-2xl font-bold text-graphite">Technical Areas</h2>
+                </div>
+                <label class="block text-graphite mb-4">Which technical areas interest you most? <span class="text-safety-orange">(Choose 1-6)</span></label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6" id="technologiesGroup">
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="Web (Frontend)" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Web (Frontend)</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="Web (Backend)" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Web (Backend)</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="Mobile" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Mobile</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="Cloud / DevOps" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Cloud / DevOps</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="AI / ML" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">AI / ML</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="Data" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Data</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="Systems / Low-level" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Systems / Low-level</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="Security" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Security</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="Game development" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">Game development</span>
+                    </label>
+                    <label class="flex items-center p-4 glass-card cursor-pointer hover:bg-white/50 transition-all group">
+                        <input type="checkbox" name="q6_technologies" value="APIs & integrations" class="w-5 h-5 text-deep-growth rounded focus:ring-2 focus:ring-deep-growth mr-3">
+                        <span class="text-graphite group-hover:text-deep-growth transition-colors">APIs & integrations</span>
+                    </label>
+                </div>
+                <div id="technologiesError" class="text-safety-orange text-sm mb-4 hidden">Please select 1-6 technology areas</div>
+
+                <label class="block text-graphite mb-3" for="q6_explanation">Tell us about your favorite project or technology:</label>
+                <textarea 
+                    id="q6_explanation" 
+                    name="q6_explanation" 
+                    rows="3" 
+                    class="input-glass w-full"
+                    placeholder="One of my favorite experiences was..."></textarea>
+            </div>
+
+            <!-- Question 7: Collaboration Style -->
+            <div class="question-section glass-card-strong p-6 mb-6 fade-in-up hidden" data-step="7">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold mr-3">
+                        7
+                    </div>
+                    <h2 class="text-2xl font-bold text-graphite">Collaboration Style</h2>
+                </div>
+                <label class="block text-graphite mb-3" for="q7_collaboration_style">
+                    How do you prefer to work with others?
+                </label>
+                <select 
+                    id="q7_collaboration_style" 
+                    name="q7_collaboration_style" 
+                    required
+                    class="input-glass w-full mb-6">
+                    <option value="">-- Select --</option>
+                    <option value="I prefer working solo and contributing specific pieces">I prefer working solo and contributing specific pieces</option>
+                    <option value="I enjoy tight collaboration with a small team">I enjoy tight collaboration with a small team</option>
+                    <option value="I like large, active communities">I like large, active communities</option>
+                    <option value="I enjoy mentoring or helping others grow">I enjoy mentoring or helping others grow</option>
+                </select>
+
+                <label class="block text-graphite mb-3" for="q7_explanation">What's important to you in a team environment?</label>
+                <textarea 
+                    id="q7_explanation" 
+                    name="q7_explanation" 
+                    rows="3" 
+                    required 
+                    class="input-glass w-full"
+                    placeholder="What matters to me is..."></textarea>
+            </div>
+
+            <!-- Question 8: Learning & Motivation -->
+            <div class="question-section glass-card-strong p-6 mb-6 fade-in-up hidden" data-step="8">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold mr-3">
+                        8
+                    </div>
+                    <h2 class="text-2xl font-bold text-graphite">What Drives You?</h2>
+                </div>
+                <label class="block text-graphite mb-3" for="q8_learning_motivation">
+                    What motivates you most in a project or job? (e.g., learning new things, solving real problems, building products, etc.)
+                </label>
+                <textarea 
+                    id="q8_learning_motivation" 
+                    name="q8_learning_motivation" 
+                    rows="4" 
+                    required 
+                    class="input-glass w-full"
+                    placeholder="Right now, I'm most motivated by..."></textarea>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center mt-8 fade-in-up">
+                <button type="button" id="prevBtn" class="btn-outline hidden">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous
+                </button>
+                <button type="button" id="nextBtn" class="btn-primary ml-auto">
+                    Next
+                    <svg class="w-5 h-5 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+                <button type="submit" id="submitBtn" class="btn-primary ml-auto hidden">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Submit Questionnaire
+                </button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden mt-6 glass-card-strong p-6 text-center">
+                <div class="flex items-center justify-center space-x-3 mb-3">
+                    <div class="loading-spinner"></div>
+                    <span class="text-graphite font-medium">Processing your profile...</span>
+                </div>
+                <p class="text-graphite/70 text-sm">This may take 30-60 seconds. Please don't close this window.</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 8;
+
+// Initialize wizard
+document.addEventListener('DOMContentLoaded', function() {
+    showStep(currentStep);
+});
+
+// Show specific step
+function showStep(step) {
+    const sections = document.querySelectorAll('.question-section');
+    sections.forEach(section => {
+        section.classList.add('hidden');
+    });
+    
+    const currentSection = document.querySelector(`.question-section[data-step="${step}"]`);
+    if (currentSection) {
+        currentSection.classList.remove('hidden');
+    }
+    
+    // Update progress
+    const progress = (step / totalSteps) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressText').textContent = `Step ${step} of ${totalSteps}`;
+    
+    // Update buttons
+    document.getElementById('prevBtn').classList.toggle('hidden', step === 1);
+    document.getElementById('nextBtn').classList.toggle('hidden', step === totalSteps);
+    document.getElementById('submitBtn').classList.toggle('hidden', step !== totalSteps);
+}
+
+// Next button handler
+document.getElementById('nextBtn').addEventListener('click', function() {
+    if (validateCurrentStep()) {
+        currentStep++;
+        showStep(currentStep);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+});
+
+// Previous button handler
+document.getElementById('prevBtn').addEventListener('click', function() {
+    currentStep--;
+    showStep(currentStep);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Validate current step
+function validateCurrentStep() {
+    const currentSection = document.querySelector(`.question-section[data-step="${currentStep}"]`);
+    
+    // Validate required fields
+    const requiredInputs = currentSection.querySelectorAll('[required]');
+    for (let input of requiredInputs) {
+        if (!input.value.trim()) {
+            input.focus();
+            alert('Please fill in all required fields before proceeding.');
+            return false;
+        }
+    }
+    
+    // Special validation for step 2 (team roles)
+    if (currentStep === 2) {
+        const teamRoles = document.querySelectorAll('input[name="q2_team_roles"]:checked');
+        const errorDiv = document.getElementById('teamRolesError');
+        if (teamRoles.length === 0 || teamRoles.length > 2) {
+            errorDiv.classList.remove('hidden');
+            return false;
+        }
+        errorDiv.classList.add('hidden');
+    }
+    
+    // Special validation for step 6 (technologies)
+    if (currentStep === 6) {
+        const technologies = document.querySelectorAll('input[name="q6_technologies"]:checked');
+        const errorDiv = document.getElementById('technologiesError');
+        if (technologies.length === 0 || technologies.length > 6) {
+            errorDiv.classList.remove('hidden');
+            return false;
+        }
+        errorDiv.classList.add('hidden');
+    }
+    
+    return true;
+}
+
+// Form submission handler
+document.getElementById('questionnaireForm').addEventListener('submit', function(e) {
+    console.log('Form submit event triggered');
+    
+    // Final validation
+    const teamRoles = document.querySelectorAll('input[name="q2_team_roles"]:checked');
+    console.log('Team roles selected:', teamRoles.length);
+    if (teamRoles.length === 0) {
+        e.preventDefault();
+        alert('Please select at least 1 team role.');
+        currentStep = 2;
+        showStep(currentStep);
+        return false;
+    }
+    if (teamRoles.length > 2) {
+        e.preventDefault();
+        alert('Please select at most 2 team roles.');
+        currentStep = 2;
+        showStep(currentStep);
+        return false;
+    }
+
+    const technologies = document.querySelectorAll('input[name="q6_technologies"]:checked');
+    console.log('Technologies selected:', technologies.length);
+    if (technologies.length === 0) {
+        e.preventDefault();
+        alert('Please select at least 1 technology area.');
+        currentStep = 6;
+        showStep(currentStep);
+        return false;
+    }
+    if (technologies.length > 6) {
+        e.preventDefault();
+        alert('Please select at most 6 technology areas.');
+        currentStep = 6;
+        showStep(currentStep);
+        return false;
+    }
+
+    // Show loading indicator and disable submit button
+    console.log('Validation passed, showing loading indicator');
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('prevBtn').disabled = true;
+    document.getElementById('loadingIndicator').classList.remove('hidden');
+    document.getElementById('submitBtn').innerHTML = '<svg class="w-5 h-5 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Processing...';
+
+    console.log('Allowing form submission');
+    return true;
+});
+
+// Live checkbox count validation for team roles
+document.getElementById('teamRolesGroup').addEventListener('change', function() {
+    const checked = document.querySelectorAll('input[name="q2_team_roles"]:checked');
+    const errorDiv = document.getElementById('teamRolesError');
+    if (checked.length > 2) {
+        errorDiv.classList.remove('hidden');
+        // Uncheck the last checked item
+        checked[checked.length - 1].checked = false;
+    } else {
+        errorDiv.classList.add('hidden');
+    }
+});
+
+// Live checkbox count validation for technologies
+document.getElementById('technologiesGroup').addEventListener('change', function() {
+    const checked = document.querySelectorAll('input[name="q6_technologies"]:checked');
+    const errorDiv = document.getElementById('technologiesError');
+    if (checked.length > 6) {
+        errorDiv.classList.remove('hidden');
+        // Uncheck the last checked item
+        checked[checked.length - 1].checked = false;
+    } else {
+        errorDiv.classList.add('hidden');
+    }
+});
+</script>
+
+{% endblock %}

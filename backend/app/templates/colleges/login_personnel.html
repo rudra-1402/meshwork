@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Split Screen Personnel Login -->
+<div class="min-h-screen flex">
+    <!-- Left Side: Success Gradient -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-fresh-shoot via-deep-growth to-fresh-shoot items-center justify-center p-12">
+        <div class="text-center fade-in-up">
+            <div class="text-6xl font-bold text-white mb-4">🏫</div>
+            <h2 class="text-4xl font-bold text-white mb-6">Personnel Portal</h2>
+            <p class="text-xl text-white/90 max-w-md">Empowering educators and administrators to nurture student growth</p>
+            
+            <!-- Badge -->
+            <div class="mt-12 inline-flex items-center space-x-3 glass-card px-6 py-3">
+                <span class="text-2xl">🛡️</span>
+                <div class="text-left">
+                    <div class="text-white font-bold">Secure Access</div>
+                    <div class="text-white/70 text-sm">For verified personnel only</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side: Login Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div class="w-full max-w-md">
+            <div class="glass-card-strong p-8 fade-in-up">
+                <h2 class="text-3xl font-bold text-graphite mb-2">Personnel Login</h2>
+                <p class="text-graphite/60 mb-8">For HODs, Faculty, Staff, and Administrators</p>
+                
+                <form method="POST" action="/login/personnel" class="space-y-6">
+                    <div>
+                        <label class="block text-graphite font-medium mb-2">Email</label>
+                        <input type="email" name="email" class="input-glass" placeholder="your-id@college.edu" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-graphite font-medium mb-2">Password</label>
+                        <input type="password" name="password" class="input-glass" placeholder="Enter your password" required>
+                    </div>
+
+                    <button type="submit" class="w-full btn-success">Login</button>
+                </form>
+                
+                <div class="mt-8 pt-6 border-t border-graphite/20">
+                    <p class="text-center text-graphite/50 text-sm mb-3">Looking for:</p>
+                    <div class="flex gap-2 justify-center">
+                        <a href="/login/user" class="px-4 py-2 text-sm rounded-lg border border-deep-growth text-deep-growth hover:bg-deep-growth hover:text-white transition-all">Student Login</a>
+                        <a href="/login/college" class="px-4 py-2 text-sm rounded-lg border border-digital-violet text-digital-violet hover:bg-digital-violet hover:text-white transition-all">College Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

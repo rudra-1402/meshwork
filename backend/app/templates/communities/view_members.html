@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8 fade-in-up">
+            <div>
+                <h1 class="text-4xl font-bold text-graphite mb-2">Community Members</h1>
+                <p class="text-graphite/70">{{ community.community_name if community else 'View all members' }}</p>
+            </div>
+            <a href="{{ url_for('community_routes.explore_communities') }}" class="btn-outline">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Communities
+            </a>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="glass-card-strong p-6 mb-8 fade-in-up stagger-1">
+            <div class="flex items-center space-x-4">
+                <div class="text-4xl font-bold text-deep-growth">{{ members|length if members else 0 }}</div>
+                <div class="text-graphite/70">Total Members</div>
+            </div>
+        </div>
+
+        {% if members %}
+        <!-- Members Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for member in members %}
+            <div class="glass-card-strong p-6 fade-in-up stagger-{{ loop.index % 3 }}">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-fresh-shoot to-deep-growth flex items-center justify-center text-white font-bold text-lg">
+                        {{ member.first_name[0].upper() if member.first_name else member.username[0].upper() }}
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-graphite">
+                            {{ member.first_name }} {{ member.last_name if member.last_name else '' }}
+                        </h3>
+                        <p class="text-graphite/70 text-sm">@{{ member.username }}</p>
+                    </div>
+                </div>
+                {% if member.is_admin %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-digital-violet/20 text-digital-violet font-semibold text-xs mt-4">
+                    Admin
+                </span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="glass-card-strong p-16 text-center fade-in-up stagger-2">
+            <div class="text-6xl mb-6">👥</div>
+            <h3 class="text-2xl font-bold text-graphite mb-4">No Members Yet</h3>
+            <p class="text-graphite/70">This community has no members at the moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
