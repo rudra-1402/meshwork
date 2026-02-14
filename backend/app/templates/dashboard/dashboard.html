@@ -33,21 +33,48 @@
                         <div class="text-graphite/70 text-sm">Total Experience</div>
                     </div>
                 </div>
+                
+                {% if role == "user" and current_streak is defined %}
+                <!-- Streak Display -->
+                <div class="{% if current_streak > 0 %}bg-gradient-to-r from-safety-orange/10 to-digital-violet/10 border-safety-orange{% else %}bg-gray-50 border-gray-200{% endif %} border-2 rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-graphite">
+                                {% if current_streak > 0 %}
+                                    🔥 {{ current_streak }} Day Streak!
+                                {% else %}
+                                    Login daily to start your streak!
+                                {% endif %}
+                            </div>
+                            <div class="text-graphite/70 text-sm mt-1">
+                                {% if max_streak > current_streak %}
+                                    Record: {{ max_streak }} days
+                                {% elif max_streak > 0 %}
+                                    New record! 🎉
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="text-5xl">
+                            {% if current_streak >= 7 %}🏆{% elif current_streak >= 3 %}⭐{% else %}📅{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
 
                 {% if role == "user" %}
-                    <div class="{% if has_completed_questionnaire %}bg-green-50 border-green-200{% else %}bg-yellow-50 border-yellow-200{% endif %} border-2 rounded-lg p-4">
+                    <div class="{% if has_completed_questionnaire %}bg-green-500/20 border-green-500/40{% else %}bg-yellow-500/20 border-yellow-500/40{% endif %} border-2 rounded-lg p-4">
                         {% if has_completed_questionnaire %}
                             <div class="flex items-center mb-2">
                                 <span class="text-2xl mr-3">✓</span>
-                                <strong class="text-green-800">Questionnaire Completed</strong>
+                                <strong class="text-green-300">Questionnaire Completed</strong>
                             </div>
-                            <p class="text-green-700 text-sm">Your profile has been analyzed and is ready to use for finding collaborators.</p>
+                            <p class="text-green-400/80 text-sm">Your profile has been analyzed and is ready to use for finding collaborators.</p>
                         {% else %}
                             <div class="flex items-center mb-2">
                                 <span class="text-2xl mr-3">⚠</span>
-                                <strong class="text-yellow-800">Questionnaire Pending</strong>
+                                <strong class="text-yellow-300">Questionnaire Pending</strong>
                             </div>
-                            <p class="text-yellow-700 text-sm mb-3">Complete your profile questionnaire to get matched with collaborators.</p>
+                            <p class="text-yellow-400/80 text-sm mb-3">Complete your profile questionnaire to get matched with collaborators.</p>
                             <a href="{{ url_for('scoring.questionnaire_form') }}" class="btn-primary text-sm inline-block">Start Questionnaire →</a>
                         {% endif %}
                     </div>
@@ -166,6 +193,50 @@
                     {% endif %}
                 </div>
             </div>
+            
+            <!-- Admin Actions - Only visible to admins -->
+            {% if role == "user" and is_admin %}
+            <div class="lg:col-span-3 glass-card-strong p-8 fade-in-up stagger-4 border-2 border-safety-orange/30">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-graphite flex items-center">
+                        <svg class="w-7 h-7 mr-2 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        Admin Panel
+                    </h3>
+                    <span class="px-3 py-1 rounded-full bg-safety-orange/20 text-safety-orange text-sm font-semibold">ADMIN</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <a href="{{ url_for('community_routes.explore_communities') }}" class="glass-card p-6 card-lift hover-scale smooth-transition border-2 border-safety-orange/20">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-safety-orange to-digital-violet flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold text-graphite mb-2">Manage Tasks</h4>
+                        <p class="text-graphite/70 text-sm">Create and assign tasks</p>
+                    </a>
+                    <a href="#" class="glass-card p-6 card-lift hover-scale smooth-transition border-2 border-digital-violet/20">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-digital-violet to-deep-growth flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold text-graphite mb-2">Post Challenge</h4>
+                        <p class="text-graphite/70 text-sm">Create coding challenges</p>
+                    </a>
+                    <a href="#" class="glass-card p-6 card-lift hover-scale smooth-transition border-2 border-deep-growth/20">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-deep-growth to-fresh-shoot flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold text-graphite mb-2">User Management</h4>
+                        <p class="text-graphite/70 text-sm">Manage user permissions</p>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

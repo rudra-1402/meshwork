@@ -20,13 +20,13 @@
                 <span class="text-graphite font-medium">Progress</span>
                 <span class="text-graphite/70 text-sm" id="progressText">Step 1 of 8</span>
             </div>
-            <div class="w-full bg-mint-vapor rounded-full h-2">
+            <div class="w-full bg-card-bg rounded-full h-2 border border-text-secondary/20">
                 <div id="progressBar" class="bg-gradient-to-r from-fresh-shoot to-deep-growth h-2 rounded-full transition-all duration-500" style="width: 12.5%"></div>
             </div>
         </div>
 
         {% if error %}
-        <div class="bg-red-500/20 border border-red-500/50 text-red-700 px-6 py-4 rounded-lg mb-6 fade-in-up stagger-2">
+        <div class="bg-red-500/20 border border-red-500/50 text-red-300 px-6 py-4 rounded-lg mb-6 fade-in-up stagger-2">
             <strong>Error:</strong> {{ error }}
         </div>
         {% endif %}

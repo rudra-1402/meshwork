@@ -32,7 +32,12 @@ def dashboard():
         username=user.username,
         email=user.email,
         has_completed_questionnaire=has_completed_questionnaire,
-        role="user"
+        role="user",
+        xp=user.xp,
+        level=user.level,
+        current_streak=user.current_streak,
+        max_streak=user.max_streak,
+        is_admin=getattr(user, 'is_admin', False)
     )
 
 
@@ -88,5 +93,10 @@ def college_dashboard():
         role="college",
         college=college,
         users=users,
-        user_count=len(users)
+        user_count=len(users),
+        xp=0,
+        level=0,
+        current_streak=0,
+        max_streak=0,
+        is_admin=False
     )

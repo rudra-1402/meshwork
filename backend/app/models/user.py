@@ -41,6 +41,9 @@ class User(db.Model):
     )
 
     has_completed_questionnaire = db.Column(db.Boolean, default=False, nullable=False)
+    
+    # Admin flag - grants access to create tasks, challenges, etc.
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     # ===== GAMIFICATION FIELDS =====
     

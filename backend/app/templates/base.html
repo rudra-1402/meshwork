@@ -16,26 +16,36 @@
     <!-- Custom Fluid System CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/fluid-system.css') }}">
     
-    <!-- Tailwind Config -->
+    <!-- Tailwind Config - Dark Mode -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
+                        // Dark Mode Color Palette
+                        'dark-bg': '#0A0E1A',
+                        'darker-bg': '#060912',
+                        'card-bg': '#131825',
+                        'card-hover': '#1A2332',
+                        'border-subtle': '#1F2937',
+                        'text-primary': '#F9FAFB',
+                        'text-secondary': '#9CA3AF',
+                        'blue-accent': '#3B82F6',
+                        'teal-accent': '#14B8A6',
+                        'purple-accent': '#8B5CF6',
+                        'orange-accent': '#F97316',
+                        // Legacy color names remapped for dark mode
                         'ice-white': '#F9FAFB',
-                        'cool-gray': '#E5E7EB',
-                        'slate': '#475569',
-                        'navy': '#0F172A',
-                        'blue-accent': '#2563EB',
-                        'teal-accent': '#0D9488',
-                        'paper-white': '#FFFFFF',
-                        // Legacy color names for compatibility
-                        'mint-vapor': '#F9FAFB',
-                        'fresh-shoot': '#0D9488',
-                        'deep-growth': '#0D9488',
-                        'graphite': '#0F172A',
-                        'safety-orange': '#2563EB',
-                        'digital-violet': '#2563EB',
+                        'cool-gray': '#9CA3AF',
+                        'slate': '#9CA3AF',
+                        'navy': '#F9FAFB',
+                        'paper-white': '#131825',
+                        'mint-vapor': '#0A0E1A',
+                        'fresh-shoot': '#14B8A6',
+                        'deep-growth': '#14B8A6',
+                        'graphite': '#F9FAFB',
+                        'safety-orange': '#F97316',
+                        'digital-violet': '#8B5CF6',
                     },
                     fontFamily: {
                         'display': ['Inter', 'sans-serif'],
