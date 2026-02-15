@@ -1,0 +1,604 @@
+/* ============================================================
+   MESHWORK DESIGN SYSTEM — index.css
+   Version: 1.0
+   Rule: Components NEVER use primitive tokens directly.
+         Only semantic tokens are consumed by UI.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   FONTS — Variable font declarations
+   Source: /public/fonts/
+   ------------------------------------------------------------ */
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/fonts/ClashDisplay-Variable.ttf') format('truetype-variations');
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Variable.ttf') format('truetype-variations');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ------------------------------------------------------------
+   TAILWIND DIRECTIVES
+   Order matters: base → components → utilities
+   ------------------------------------------------------------ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   LAYER 1 — PRIMITIVE TOKENS
+   Raw values. Never referenced by components.
+   Only semantic tokens (Layer 2) may read these.
+   ============================================================ */
+:root {
+  /* Neutral scale — Dark mode base */
+  --primitive-neutral-900: #0E1113;
+  --primitive-neutral-800: #14181B;
+  --primitive-neutral-700: #1B2024;
+  --primitive-neutral-600: #2A3036;
+  --primitive-neutral-400: #9AA4AE;
+  --primitive-neutral-100: #E6EDF3;
+
+  /* Emerald scale — Primary accent */
+  --primitive-emerald-500: #10B981;
+  --primitive-emerald-600: #0EA371;
+  --primitive-emerald-700: #0B7A56;
+
+  /* Feedback colors */
+  --primitive-warning-500: #EAB308;
+  --primitive-error-500:   #EF4444;
+
+  /* Accent soft — derived, not a raw hue */
+  --primitive-emerald-soft: rgba(16, 185, 129, 0.12);
+
+  /* Light mode primitives */
+  --primitive-light-bg:      #F7F9FA;
+  --primitive-light-surface: #FFFFFF;
+  --primitive-light-elevated:#F1F5F9;
+  --primitive-light-text:    #0F172A;
+  --primitive-light-muted:   #475569;
+  --primitive-light-accent:  #059669;
+  --primitive-light-accent-hover: #047857;
+}
+
+/* ============================================================
+   LAYER 2 — SEMANTIC TOKENS (Dark Mode Default)
+   These are the ONLY tokens components may consume.
+   ============================================================ */
+:root {
+  /* Backgrounds */
+  --bg-primary:           var(--primitive-neutral-900);
+  --bg-surface:           var(--primitive-neutral-800);
+  --bg-surface-elevated:  var(--primitive-neutral-700);
+
+  /* Text */
+  --text-primary:         var(--primitive-neutral-100);
+  --text-secondary:       var(--primitive-neutral-400);
+
+  /* Borders */
+  --border-subtle:        rgba(255, 255, 255, 0.06);
+
+  /* Accent */
+  --accent-primary:       var(--primitive-emerald-500);
+  --accent-hover:         var(--primitive-emerald-600);
+  --accent-active:        var(--primitive-emerald-700);
+  --accent-soft:          var(--primitive-emerald-soft);
+
+  /* Feedback */
+  --color-warning:        var(--primitive-warning-500);
+  --color-error:          var(--primitive-error-500);
+
+  /* Focus ring — always visible */
+  --focus-ring:           var(--primitive-emerald-500);
+}
+
+/* ============================================================
+   LIGHT MODE OVERRIDE
+   Toggled via .light class on <html>
+   Not an inversion — deliberate remapping.
+   ============================================================ */
+.light {
+  --bg-primary:           var(--primitive-light-bg);
+  --bg-surface:           var(--primitive-light-surface);
+  --bg-surface-elevated:  var(--primitive-light-elevated);
+  --text-primary:         var(--primitive-light-text);
+  --text-secondary:       var(--primitive-light-muted);
+  --border-subtle:        rgba(0, 0, 0, 0.08);
+  --accent-primary:       var(--primitive-light-accent);
+  --accent-hover:         var(--primitive-light-accent-hover);
+  --accent-soft:          rgba(5, 150, 105, 0.10);
+}
+
+/* ============================================================
+   BASE LAYER — Global resets and typography defaults
+   ============================================================ */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* Smooth scroll — now conditionally applied via prefers-reduced-motion below */
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Satoshi', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Theme transition — only on deliberate toggle */
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Focus ring — always visible, never hidden */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Skip to content — accessibility */
+  .skip-to-content {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    z-index: 999;
+    padding: 8px 16px;
+    background: var(--accent-primary);
+    color: var(--bg-primary);
+    font-weight: 600;
+    border-radius: 8px;
+    transition: top 0.2s ease;
+  }
+
+  .skip-to-content:focus {
+    top: 16px;
+  }
+
+  /* Headings — Clash Display only */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Clash Display', system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--text-primary);
+  }
+
+  /* Anchor reset */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Image reset */
+  img, svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Button reset */
+  button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+}
+
+/* ============================================================
+   COMPONENTS LAYER
+   MeshWork component primitives.
+   No raw hex values — semantic tokens only.
+   ============================================================ */
+@layer components {
+
+  /* ----------------------------------------------------------
+     BUTTONS
+     Primary: morphs radius 12px → 999px on hover
+     Secondary: no morph
+     Ghost: transparent
+     ---------------------------------------------------------- */
+
+  /* Shared button base */
+  .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  white-space: nowrap;
+  text-decoration: none;
+  /*
+   * Smooth morph: border-radius needs a longer, gentler curve.
+   * Using [0.16,1,0.3,1] — gentle spring feel, not mechanical.
+   * All other props follow the same easing for coherence.
+   */
+  transition:
+    border-radius 380ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  }
+
+  .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  }
+
+  /* Primary button — signature morph interaction */
+  .btn-primary {
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  border-radius: 999px;    /* MORPH — smooth because only border-radius is in transition */
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+  border-radius: 12px;     /* Snaps back on press — intentional */
+}
+
+/* Secondary — NO morph, no radius change */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-surface);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+  /* Ghost button — nav links, tertiary actions */
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--text-secondary);
+    padding: 8px 16px;
+  }
+
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-surface);
+  }
+
+  /* Icon button */
+  .btn-icon {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: transparent;
+    color: var(--text-secondary);
+  }
+
+  .btn-icon:hover {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+  }
+
+  /* ----------------------------------------------------------
+     CARDS
+     Surface elevated, 14px radius, 1px subtle border
+     Hover: lift 2px — no glow
+     ---------------------------------------------------------- */
+  .card {
+    background-color: var(--bg-surface);
+    border-radius: 14px;            /* Design system: card radius = 14px */
+    border: 1px solid var(--border-subtle);
+    padding: 32px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25); /* Design system shadow */
+    transition:
+      transform 300ms ease,
+      box-shadow 300ms ease,
+      border-color 300ms ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);    /* Design system: hover lift = 2px */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.10);
+    /* No glow — design system explicit */
+  }
+
+  .card-elevated {
+    background-color: var(--bg-surface-elevated);
+    border-radius: 14px;
+    border: 1px solid var(--border-subtle);
+    padding: 32px;
+  }
+
+  /* ----------------------------------------------------------
+     INPUTS
+     Dark surface, 1px subtle border
+     Focus: accent border + faint glow
+     Error: error-500 border, message below
+     ---------------------------------------------------------- */
+  .input {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;             /* Design system: small elements = 8px */
+    font-family: 'Satoshi', sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    outline: none;
+    transition:
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  .input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  .input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-soft); /* Faint outer glow on focus */
+  }
+
+  .input-error {
+    border-color: var(--color-error);
+  }
+
+  .input-error:focus {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+  }
+
+  .input-error-message {
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-error);
+    margin-top: 6px;
+  }
+
+  /* ----------------------------------------------------------
+     NAVBAR
+     Transparent → bg-surface on scroll
+     ---------------------------------------------------------- */
+  .navbar {
+    position: sticky;
+    top: 0;
+    height: 72px;
+    width: 100%;
+    z-index: 100;                   /* z-header from design system */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 64px;
+    background-color: transparent;
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color 300ms ease,
+      border-color 300ms ease,
+      backdrop-filter 300ms ease;
+  }
+
+  /* Triggered by JS on scroll > 10px */
+  .navbar.scrolled {
+    background-color: var(--bg-surface);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom-color: var(--border-subtle);
+  }
+
+  /* ----------------------------------------------------------
+     PROGRESS BARS
+     Track: neutral-700, Fill: accent-primary
+     ---------------------------------------------------------- */
+  .progress-track {
+    width: 100%;
+    height: 4px;
+    background-color: var(--bg-surface-elevated);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: var(--accent-primary);
+    border-radius: 999px;
+    transition: width 400ms ease;
+  }
+}
+
+/* ============================================================
+   UTILITIES LAYER
+   One-off helpers. No overrides to component classes here.
+   ============================================================ */
+@layer utilities {
+
+  /* Typography shorthand — matches design system scale exactly */
+  .text-hero {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 72px;
+    line-height: 80px;
+    font-weight: 600;
+  }
+
+  .text-section-title {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 40px;
+    line-height: 48px;
+    font-weight: 500;
+  }
+
+  .text-subsection {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 600;
+  }
+
+  .text-body-lg {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 400;
+  }
+
+  .text-body {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+  }
+
+  .text-small {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+  }
+
+  /* Semantic color utilities */
+  .text-accent   { color: var(--accent-primary); }
+  .text-muted    { color: var(--text-secondary); }
+  .bg-primary    { background-color: var(--bg-primary); }
+  .bg-surface    { background-color: var(--bg-surface); }
+  .bg-elevated   { background-color: var(--bg-surface-elevated); }
+  .border-subtle { border-color: var(--border-subtle); }
+
+  /* Section spacing — design system: minimum 128px vertical */
+  .section-padding {
+    padding-top: 128px;
+    padding-bottom: 128px;
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+
+  /* Accent text highlight — one word in headline */
+  .text-accent-highlight {
+    color: var(--accent-primary);
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION — Non-negotiable
+   Disables: parallax, large transforms, float loops
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   LIGHTHOUSE / PERFORMANCE HINTS
+   - content-visibility: auto on below-fold sections saves paint
+   - will-change on animated canvas to trigger GPU compositing
+   - Contain layout for heavy sections
+   ============================================================ */
+
+/* Promote canvas elements to their own compositing layer */
+canvas {
+  will-change: transform;
+}
+
+/* Below-fold sections: defer paint until near viewport */
+#features,
+#how-it-works {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 800px;
+}
+
+/* Avoid repaints on scroll by containing sticky elements */
+[style*="position: sticky"] {
+  contain: layout style;
+}
+
+/* Smooth scroll only when user has no preference */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE NAVBAR PADDING
+   Desktop: 64px | Tablet: 32px | Mobile: 20px
+   ============================================================ */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 0 32px;
+  }
+
+  .section-padding {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .section-padding {
+    padding-top: 80px;
+    padding-bottom: 80px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .text-hero {
+    font-size: 44px;
+    line-height: 52px;
+  }
+
+  .text-section-title {
+    font-size: 28px;
+    line-height: 36px;
+  }
+}
+@media (max-width: 768px) {
+  /* Hero split → single column on mobile */
+  .hero-split {
+    flex-direction: column;
+    padding: 80px 20px;
+  }
+  /* Feature and step grids → stacked */
+  .grid-3col {
+    grid-template-columns: 1fr;
+  }
+}
