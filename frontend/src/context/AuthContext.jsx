@@ -1,54 +1,72 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import api from '../utils/api'
+import { createContext, useContext, useState } from 'react'
+import api, {
+  clearApiAuthToken,
+  ensureApiSuccess,
+  getApiErrorMessage,
+  setApiAuthToken,
+} from '../utils/api'
+import { API_ROUTES } from '../utils/apiRoutes'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [token, setToken] = useState(null)
+  const [loading] = useState(false)
 
-  useEffect(() => {
-    // Check if user is logged in on mount
-    const token = localStorage.getItem('token')
-    if (token) {
-      // TODO: Validate token with backend
-      setLoading(false)
-    } else {
-      setLoading(false)
-    }
-  }, [])
-
-  const login = async (email, password) => {
+  const validateEmail = async (email) => {
     try {
-      const response = await api.post('/auth/login', { email, password })
-      const { token, user } = response.data
-      localStorage.setItem('token', token)
-      setUser(user)
-      return { success: true }
+      const response = await api.post(API_ROUTES.auth.validateEmail, { email })
+      const payload = ensureApiSuccess(response.data, 'Email validation failed')
+      return { success: true, ...payload }
     } catch (error) {
-      return { success: false, error: error.response?.data?.message || 'Login failed' }
+      const data = error.response?.data || error.payload || {}
+      // is_registered means the email exists — treat as login, not an error
+      if (data.is_registered) {
+        return { success: false, is_registered: true, ...data }
+      }
+      return { success: false, error: getApiErrorMessage(error, 'Email validation failed') }
     }
   }
 
-  const register = async (name, email, password) => {
+  const login = async (email, password) => {
     try {
-      const response = await api.post('/auth/register', { name, email, password })
-      const { token, user } = response.data
-      localStorage.setItem('token', token)
-      setUser(user)
-      return { success: true }
+      const response = await api.post(API_ROUTES.auth.login, { email, password })
+      const payload = ensureApiSuccess(response.data, 'Login failed')
+      const { token: jwtToken, user: userData, dashboard_route } = payload
+
+      setToken(jwtToken || null)
+      setApiAuthToken(jwtToken)
+      setUser(userData)
+      return { success: true, dashboard_route: dashboard_route || '/dashboard' }
     } catch (error) {
-      return { success: false, error: error.response?.data?.message || 'Registration failed' }
+      return { success: false, error: getApiErrorMessage(error, 'Login failed') }
+    }
+  }
+
+  const signup = async (data) => {
+    try {
+      const response = await api.post(API_ROUTES.auth.signup, data)
+      const payload = ensureApiSuccess(response.data, 'Registration failed')
+      const { token: jwtToken, user: userData, dashboard_route } = payload
+
+      setToken(jwtToken || null)
+      setApiAuthToken(jwtToken)
+      setUser(userData)
+      return { success: true, dashboard_route: dashboard_route || '/dashboard' }
+    } catch (error) {
+      return { success: false, error: getApiErrorMessage(error, 'Registration failed') }
     }
   }
 
   const logout = () => {
-    localStorage.removeItem('token')
+    clearApiAuthToken()
+    setToken(null)
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, validateEmail, login, signup, logout, loading }}>
       {children}
     </AuthContext.Provider>
   )

@@ -6,7 +6,7 @@ Handles authentication for both students and personnel through a single interfac
 
 from app.models.user import User
 from app.models.college_personnel import CollegePersonnel
-from app.services.auth_services import authenticate_user, create_user
+from app.services.auth_services import create_user
 from app.services.college_personnel_services import authenticate_personnel, create_personnel
 from app.services.email_validation_service import EmailValidationService
 from app.extensions import db
@@ -36,11 +36,27 @@ class UnifiedAuthService:
         existing_user = User.query.filter_by(email=email).first()
         existing_personnel = CollegePersonnel.query.filter_by(email=email).first()
         
-        if existing_user or existing_personnel:
+        if existing_user:
             return {
                 'valid': False,
                 'is_registered': True,
-                'error': 'Email already registered'
+                'error': 'Email already registered',
+                'user_type': 'student',
+                'college_id': existing_user.college_id,
+                'college_name': existing_user.college.name if existing_user.college else None,
+                'show_role_selector': False,
+            }
+
+        if existing_personnel:
+            return {
+                'valid': False,
+                'is_registered': True,
+                'error': 'Email already registered',
+                'user_type': 'personnel',
+                'college_id': existing_personnel.college_id,
+                'college_name': existing_personnel.college.name if existing_personnel.college else None,
+                'detected_role': existing_personnel.role,
+                'show_role_selector': True,
             }
         
         # Detect user type from email
@@ -173,9 +189,9 @@ class UnifiedAuthService:
             # Update streak
             streak_result = StreakService.update_login_streak(user)
             
-            # Award XP if first login today
+            # Award XP if first login today (use structured fields, not human-readable message)
             xp_awarded = 0
-            if streak_result.get('message') != 'Already logged in today':
+            if streak_result.get('streak_continued') or streak_result.get('first_login_today'):
                 xp_result = XPService.award_standard_xp(user, 'daily_login')
                 xp_awarded = xp_result.get('xp_awarded', 0)
             
@@ -283,6 +299,9 @@ class UnifiedAuthService:
                 'message': username_check['message']
             }
         
+        # Use validated college_id from email validation, fall back to submitted value
+        validated_college_id = email_validation.get('college_id') or int(data['college_id'])
+
         # Create user
         user = create_user(
             username=data['username'],
@@ -290,24 +309,23 @@ class UnifiedAuthService:
             last_name=data['last_name'],
             email=data['email'],
             password=data['password'],
-            college_id=int(data['college_id'])
+            college_id=validated_college_id
         )
-        
+
         if not user:
             return {
                 'success': False,
                 'message': 'Failed to create account'
             }
-        
+
         # Mark email as registered
         if email_validation.get('whitelist_entry_id'):
-            WhitelistService.mark_email_registered(data['email'], user.id)
+            WhitelistService.mark_email_registered(data['email'], validated_college_id, user.id)
         
-        # Award signup XP
-        signup_xp = XPService.award_xp(
+        # Award signup XP using the canonical constant from XP_AMOUNTS
+        signup_xp = XPService.award_standard_xp(
             user=user,
-            amount=50,
-            source='account_created',
+            action_type='account_created',
             description='Welcome bonus for creating account'
         )
         

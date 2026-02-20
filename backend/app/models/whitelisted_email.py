@@ -6,7 +6,7 @@ HODs/Admins can whitelist emails before students sign up.
 """
 
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class WhitelistedEmail(db.Model):
@@ -21,7 +21,7 @@ class WhitelistedEmail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     college_id = db.Column(db.Integer, db.ForeignKey("colleges.id"), nullable=False)
     
-    email = db.Column(db.String(255), unique=True, nullable=False)
+    email = db.Column(db.String(255), nullable=False)  # Uniqueness is per-college — see __table_args__
     student_enrollment = db.Column(db.String(100), nullable=True)
     student_name = db.Column(db.String(255), nullable=True)
     
@@ -31,21 +31,26 @@ class WhitelistedEmail(db.Model):
     registered_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     registration_date = db.Column(db.DateTime, nullable=True)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     notes = db.Column(db.Text, nullable=True)
     
     # Relationships
     college = db.relationship("College", backref="whitelisted_emails")
     added_by = db.relationship("CollegePersonnel", foreign_keys=[added_by_personnel_id])
     registered_user = db.relationship("User", foreign_keys=[registered_user_id])
-    
+
+    __table_args__ = (
+        # Per-college uniqueness: the same email can be whitelisted at different colleges
+        db.UniqueConstraint('email', 'college_id', name='uix_whitelisted_email_per_college'),
+    )
+
     # ===== UTILITY METHODS =====
     
     def mark_as_registered(self, user_id):
         """Mark email as registered by user"""
         self.is_registered = True
         self.registered_user_id = user_id
-        self.registration_date = datetime.utcnow()
+        self.registration_date = datetime.now(timezone.utc)
     
     def get_status(self):
         """Return registration status"""

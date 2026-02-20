@@ -74,14 +74,12 @@ class ScoringService:
         # Initialize client with API key
         self.client = genai.Client(api_key=api_key)
         
-        # Use Gemini 3 Flash Preview (fast and cheap) or Gemini 3 Pro Preview (more capable)
-        # Flash is recommended for this use case - much faster and cheaper
-        self.model_name = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
+        # Use gemini-2.0-flash (fast and cheap) or override via GEMINI_MODEL env var
+        self.model_name = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
         
         logger.info(f"Gemini client configured with model={self.model_name}")
-        
-        # Verify API key works
-        self._verify_api_access()
+
+        # API access verified lazily on first scoring request
     
     def _verify_api_access(self):
         """Verify that Gemini API is accessible with provided key"""
@@ -239,11 +237,14 @@ class ScoringService:
             "motivation": float(scoring_record.motivation_score)
         }
         
-        # Apply adjustments (with capping at 10.0)
+        # Apply adjustments (with capping at 10.0).
+        # Reassign the dict entirely so SQLAlchemy tracks the change to this JSON column.
+        updated_scores = dict(scoring_record.interest_scores)
         for interest, delta in interest_adjustments.items():
-            current_score = scoring_record.interest_scores.get(interest, 0.0)
+            current_score = updated_scores.get(interest, 0.0)
             new_score = min(10.0, max(0.0, current_score + delta))
-            scoring_record.interest_scores[interest] = round(new_score, 2)
+            updated_scores[interest] = round(new_score, 2)
+        scoring_record.interest_scores = updated_scores
         
         # Update timestamp (SQLAlchemy doesn't auto-update for JSON changes)
         from datetime import datetime, timezone
@@ -359,7 +360,7 @@ class ScoringService:
         motivation = raw_output['motivation_score']
         if not isinstance(motivation, (int, float)):
             raise ValidationError(f"motivation_score must be numeric, got {type(motivation).__name__}")
-        if not (0.0 <= motivation <= 10.0):
+        if not (0.0 < motivation <= 10.0):
             raise ValidationError(f"motivation_score {motivation} out of range [0.0, 10.0]")
         
         # Validate roles structure
@@ -514,7 +515,7 @@ class ScoringService:
             )
 
             # Mark questionnaire as completed
-            user = User.query.get(user_id)
+            user = db.session.get(User, user_id)
             if user:
                 user.has_completed_questionnaire = True
             

@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class CommunityPoll(db.Model):
@@ -29,22 +29,29 @@ class CommunityPoll(db.Model):
     options = db.Column(db.JSON, nullable=False)
     
     # Allow multiple selections?
-    allow_multiple = db.Column(db.Boolean, default=False)
-    
+    allow_multiple = db.Column(db.Boolean, default=False, nullable=False)
+
     # Anonymous voting?
-    is_anonymous = db.Column(db.Boolean, default=False)
+    is_anonymous = db.Column(db.Boolean, default=False, nullable=False)
     
     # Deadline
     expires_at = db.Column(db.DateTime, nullable=True)
     
-    is_active = db.Column(db.Boolean, default=True)
-    
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # ===== Relationships =====
     community = db.relationship("Community", backref="polls")
     creator = db.relationship("User", backref="created_polls")
-    
+
+    # NOTE: options JSON stores vote counts inline. Concurrent votes risk a lost-update
+    # anomaly. Compute vote counts from PollVote at query time instead.
+    __table_args__ = (
+        db.Index('idx_community_polls_community_id', 'community_id'),
+        db.Index('idx_community_polls_created_by', 'created_by'),
+    )
+
     def __repr__(self):
         return f"<CommunityPoll '{self.question[:30]}...'>"
 
@@ -72,7 +79,7 @@ class PollVote(db.Model):
     # Array of selected option IDs: [1, 3] (if multiple allowed)
     selected_options = db.Column(db.JSON, nullable=False)
     
-    voted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    voted_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # ===== Relationships =====
     poll = db.relationship("CommunityPoll", backref="votes")

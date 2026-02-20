@@ -6,7 +6,6 @@ Single endpoint for all student and personnel authentication.
 
 from flask import Blueprint, request, jsonify
 from app.services.unified_auth_service import UnifiedAuthService
-from flask_jwt_extended import set_access_cookies
 
 
 unified_auth_routes = Blueprint("unified_auth", __name__, url_prefix="/api/auth")
@@ -18,9 +17,9 @@ def validate_email():
     Real-time email validation endpoint.
     Called when user blurs the email field.
     """
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     email = data.get('email')
-    
+
     if not email:
         return jsonify({
             'valid': False,
@@ -40,10 +39,10 @@ def unified_login():
     """
     Unified login endpoint for both students and personnel.
     """
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     email = data.get('email')
     password = data.get('password')
-    
+
     if not email or not password:
         return jsonify({
             'success': False,
@@ -53,10 +52,7 @@ def unified_login():
     result = UnifiedAuthService.unified_login(email, password)
     
     if result['success']:
-        # Set JWT cookie
-        response = jsonify(result)
-        set_access_cookies(response, result['token'])
-        return response, 200
+        return jsonify(result), 200
     else:
         return jsonify(result), 401
 
@@ -66,8 +62,8 @@ def unified_signup():
     """
     Unified signup endpoint for both students and personnel.
     """
-    data = request.get_json()
-    
+    data = request.get_json(silent=True) or {}
+
     # Validate required fields
     required_base_fields = ['email', 'password', 'first_name', 'last_name', 'user_type', 'college_id']
     
@@ -95,10 +91,7 @@ def unified_signup():
     result = UnifiedAuthService.unified_signup(data)
     
     if result['success']:
-        # Set JWT cookie
-        response = jsonify(result)
-        set_access_cookies(response, result['token'])
-        return response, 201
+        return jsonify(result), 201
     else:
         return jsonify(result), 400
 
@@ -108,7 +101,7 @@ def check_username():
     """
     Check if username is available.
     """
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     username = data.get('username')
     
     if not username:

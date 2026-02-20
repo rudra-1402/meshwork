@@ -5,9 +5,11 @@ from datetime import timedelta
 from flask_jwt_extended import JWTManager
 from app.extensions import db, migrate
 
-def create_app():
+def create_app(config_overrides=None):
     app = Flask(__name__)
     app.config.from_object(Config)
+    if config_overrides:
+        app.config.update(config_overrides)
     
     # ✅ CORS CONFIGURATION (React SPA)
     CORS(app, resources={
@@ -16,11 +18,16 @@ def create_app():
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True
+        },
+        r"/legacy/*": {
+            "origins": ["http://localhost:3000", "http://localhost:5173"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
         }
     })
     
     # ✅ JWT CONFIGURATION (Header-based for SPA)
-    app.config['JWT_SECRET_KEY'] = 'your-secret-key-change-in-production'
     app.config['JWT_TOKEN_LOCATION'] = ['headers']  # Changed from cookies to headers
     app.config['JWT_HEADER_NAME'] = 'Authorization'
     app.config['JWT_HEADER_TYPE'] = 'Bearer'
@@ -69,6 +76,9 @@ def create_app():
     from app.models.college import College
     from app.models.college_personnel import CollegePersonnel
     from app.models.whitelisted_email import WhitelistedEmail
+    from app.models.project import Project, ProjectStatus, MembershipPolicy, ProjectVisibility
+    from app.models.project_member import ProjectMember, ProjectMemberRole
+    from app.models.project_language import ProjectLanguage
     
     # Scoring models
     from app.models.scoring import UserScoring
@@ -95,8 +105,7 @@ def create_app():
     
     # ================= REGISTER BLUEPRINTS =================
     from app.routes.main_routes import main_routes
-    from app.routes.auth_routes import auth_routes
-    from app.routes.college_auth_routes import college_auth_routes
+    from app.routes.college_api_routes import college_api_routes
     from app.routes.unified_auth_routes import unified_auth_routes
     from app.routes.dashboard_routes import dashboard_routes
     from app.routes.scoring_routes import scoring_bp
@@ -105,12 +114,13 @@ def create_app():
     from app.routes.profile_routes import profile_bp
     from app.routes.leaderboard_routes import leaderboards_bp
     from app.routes.admin_routes import admin_bp
+    from app.routes.project_routes import projects_bp
+    from app.routes.event_routes import events_bp
     
     # Register all routes under /api prefix for clean API architecture
     app.register_blueprint(main_routes, url_prefix="/api")
-    app.register_blueprint(auth_routes, url_prefix="/api/auth")
-    app.register_blueprint(college_auth_routes, url_prefix="/api/college-auth")
     app.register_blueprint(unified_auth_routes)  # Has its own prefix /api/auth
+    app.register_blueprint(college_api_routes)  # JSON-only college auth routes
     app.register_blueprint(dashboard_routes, url_prefix="/api/dashboard")
     app.register_blueprint(scoring_bp, url_prefix="/api/scoring")
     app.register_blueprint(community_routes, url_prefix="/api/communities")
@@ -118,7 +128,13 @@ def create_app():
     app.register_blueprint(profile_bp, url_prefix="/api/profile")
     app.register_blueprint(leaderboards_bp, url_prefix="/api/leaderboard")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
+    app.register_blueprint(projects_bp, url_prefix="/api/projects")
+    app.register_blueprint(events_bp, url_prefix="/api/events")
     
+    # ✅ ERROR HANDLERS
+    from app.error_handlers import register_error_handlers
+    register_error_handlers(app)
+
     # ✅ Root route - API info
     @app.route('/')
     def root():
@@ -134,6 +150,10 @@ def create_app():
                     'login': 'POST /api/auth/login',
                     'signup': 'POST /api/auth/signup',
                     'check_username': 'POST /api/auth/check-username'
+                },
+                'college_auth': {
+                    'login': 'POST /api/college-auth/login',
+                    'signup': 'POST /api/college-auth/signup'
                 },
                 'docs': 'See UNIFIED_AUTH_TEST_COMMANDS.md for test examples'
             }

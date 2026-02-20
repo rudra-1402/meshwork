@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class CommunityMessage(db.Model):
@@ -51,7 +51,7 @@ class CommunityMessage(db.Model):
     # Timestamps
     messaged_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc)
     )
     
     edited_at = db.Column(db.DateTime, nullable=True)
@@ -61,6 +61,11 @@ class CommunityMessage(db.Model):
     sender = db.relationship("User", backref="community_messages")
     community = db.relationship("Community", backref="messages")
     related_task = db.relationship("CommunityTask", backref="task_messages")
+
+    __table_args__ = (
+        db.Index('idx_community_message_community_id', 'community_id'),
+        db.Index('idx_community_message_user_id', 'user_id'),
+    )
     
     def __repr__(self):
         return f"<CommunityMessage {self.message_type} in community={self.community_id}>"
@@ -76,7 +81,7 @@ class CommunityMessage(db.Model):
     def soft_delete(self):
         """Soft delete message (mark as deleted but keep in database)"""
         self.is_deleted = True
-        self.deleted_at = datetime.utcnow()
+        self.deleted_at = datetime.now(timezone.utc)
     
     def pin(self):
         """Pin this message"""
@@ -94,12 +99,14 @@ class CommunityMessage(db.Model):
             new_content: New message text
         """
         self.message = new_content
-        self.edited_at = datetime.utcnow()
+        self.edited_at = datetime.now(timezone.utc)
         
-        # Update metadata to mark as edited
-        if not self.metadata:
-            self.metadata = {}
-        self.metadata['edited'] = True
+        # Update meta_data column to mark as edited
+        # Reassign the dict so SQLAlchemy detects the column as dirty
+        if not self.meta_data:
+            self.meta_data = {'edited': True}
+        else:
+            self.meta_data = {**self.meta_data, 'edited': True}
     
     @staticmethod
     def create_task_announcement(community_id, user_id, task):

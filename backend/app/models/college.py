@@ -1,6 +1,6 @@
 from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 
 class College(db.Model):
     __tablename__ = "colleges"
@@ -21,7 +21,7 @@ class College(db.Model):
 
     password_hash = db.Column(db.String(255), nullable=False)
 
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     users = db.relationship(
         "User",
@@ -45,12 +45,4 @@ class College(db.Model):
             parts.append(self.state)
         return ", ".join(parts)
     
-    def validate_student_email(self, email):
-        """Check if email matches student pattern"""
-        # Will be implemented in EmailValidationService
-        pass
-    
-    def validate_personnel_email(self, email):
-        """Check if email matches personnel pattern"""
-        # Will be implemented in EmailValidationService
-        pass
+

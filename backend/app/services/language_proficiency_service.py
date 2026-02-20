@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from app.extensions import db
 from app.models.user_language import UserLanguage
 from app.exceptions import ValidationError, LanguageProficiencyError
+from app.models.language import Language
 
 logger = logging.getLogger(__name__)
 
@@ -29,12 +30,6 @@ class LanguageProficiencyService:
     
     # Supported programming languages
     # Match this to your project creation form
-    SUPPORTED_LANGUAGES = [
-        "Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "C",
-        "Go", "Rust", "Ruby", "PHP", "Swift", "Kotlin", "Dart",
-        "HTML", "CSS", "SQL", "Shell", "R", "Scala", "Haskell",
-        "Lua", "Perl", "Elixir", "Clojure", "Objective-C"
-    ]
     
     # XP awards for different activities
     XP_AWARDS = {
@@ -48,37 +43,32 @@ class LanguageProficiencyService:
     # Level requirements for community leadership
     COMMUNITY_LEADERSHIP_LEVEL = 5  # Minimum level to create a community for a language
     
-    def add_language_xp(self, user_id, language, activity_type, xp_override=None):
+    def add_language_xp(self, user_id, language_name, activity_type, xp_override=None):
         """
         Add XP to a user's language proficiency.
         Creates language record if it doesn't exist.
-        
+
         Args:
-            user_id: User ID
-            language: Language name (must be in SUPPORTED_LANGUAGES)
+            user_id:       User ID
+            language_name: Language name string (must exist in languages table)
             activity_type: Type of activity (must be in XP_AWARDS)
-            xp_override: Optional XP amount (overrides default for activity_type)
-            
+            xp_override:   Optional XP amount override
+
         Returns:
-            Dict with:
-            - language: Language name
-            - old_level: Level before XP gain
-            - new_level: Level after XP gain
-            - xp_gained: Amount of XP added
-            - leveled_up: Boolean (did user level up?)
-            - total_xp: New total XP
-            
+            Dict with old_level, new_level, xp_gained, leveled_up, total_xp
+
         Raises:
-            ValidationError: If language or activity_type is invalid
-            LanguageProficiencyError: If database update fails
+            ValidationError:           If language or activity_type is invalid
+            LanguageProficiencyError:  If database update fails
         """
-        # Validate language
-        if language not in self.SUPPORTED_LANGUAGES:
+        # Validate language against database — single source of truth
+        language = Language.query.filter_by(name=language_name).first()
+        if not language:
             raise ValidationError(
-                f"Unsupported language: {language}. "
-                f"Supported: {', '.join(self.SUPPORTED_LANGUAGES)}"
+                f"Unsupported language: {language_name}. "
+                f"Must match an entry in the languages table."
             )
-        
+
         # Validate activity type and determine XP
         if xp_override is not None:
             xp_to_add = xp_override
@@ -89,44 +79,62 @@ class LanguageProficiencyService:
                 f"Unknown activity type: {activity_type}. "
                 f"Supported: {', '.join(self.XP_AWARDS.keys())}"
             )
-        
+
         logger.info(
-            f"Adding {xp_to_add} XP to {language} for user_id={user_id} "
+            f"Adding {xp_to_add} XP to {language_name} for user_id={user_id} "
             f"(activity: {activity_type})"
         )
-        
+
         try:
-            # Get or create language record
             lang_record = UserLanguage.query.filter_by(
                 user_id=user_id,
-                language=language
+                language_id=language.id
             ).first()
-            
+
             if not lang_record:
-                # Create new language record
                 lang_record = UserLanguage(
                     user_id=user_id,
-                    language=language,
+                    language_id=language.id,
+                    source='self_added',
                     language_level=1,
                     language_xp=0
                 )
                 db.session.add(lang_record)
-                logger.info(f"Created new language record: {language} for user_id={user_id}")
-            
-            # Add XP and recalculate level
-            result = lang_record.add_xp(xp_to_add)
-            
-            # Commit
-            db.session.commit()
-            
-            if result["leveled_up"]:
                 logger.info(
-                    f"User {user_id} leveled up in {language}: "
-                    f"Level {result['old_level']} → {result['new_level']}"
+                    f"Created new language record: {language_name} "
+                    f"for user_id={user_id}"
                 )
-            
-            return result
-            
+
+            # XP logic lives here in the service, not the model
+            old_level = lang_record.language_level
+            old_xp = lang_record.language_xp
+
+            lang_record.language_xp += xp_to_add
+            lang_record.language_level = UserLanguage.calculate_level_from_xp(
+                lang_record.language_xp
+            )
+            lang_record.last_activity_at = datetime.now(timezone.utc)
+
+            leveled_up = lang_record.language_level > old_level
+
+            db.session.commit()
+
+            if leveled_up:
+                logger.info(
+                    f"User {user_id} leveled up in {language_name}: "
+                    f"Level {old_level} → {lang_record.language_level}"
+                )
+
+            return {
+                "language": language_name,
+                "old_level": old_level,
+                "new_level": lang_record.language_level,
+                "old_xp": old_xp,
+                "new_xp": lang_record.language_xp,
+                "xp_gained": xp_to_add,
+                "leveled_up": leveled_up
+            }
+
         except Exception as e:
             db.session.rollback()
             logger.error(f"Failed to add language XP for user_id={user_id}: {e}")
@@ -157,104 +165,84 @@ class LanguageProficiencyService:
         
         return results
     
-    def get_user_language_proficiency(self, user_id, language):
-        """
-        Get user's proficiency in a specific language.
-        
-        Args:
-            user_id: User ID
-            language: Language name
-            
-        Returns:
-            Dict with level, xp, last_activity_at, or None if not found
-        """
+    def get_user_language_proficiency(self, user_id, language_name):
+        language = Language.query.filter_by(name=language_name).first()
+        if not language:
+            return None
+
         lang_record = UserLanguage.query.filter_by(
             user_id=user_id,
-            language=language
+            language_id=language.id
         ).first()
-        
+
         if not lang_record:
             return None
-        
+
         return {
-            "language": lang_record.language,
+            "language": language.name,
             "level": lang_record.language_level,
             "xp": lang_record.language_xp,
             "last_activity_at": lang_record.last_activity_at.isoformat()
+                if lang_record.last_activity_at else None
         }
     
     def get_all_user_languages(self, user_id, min_level=None):
-        """
-        Get all languages for a user, optionally filtered by minimum level.
-        
-        Args:
-            user_id: User ID
-            min_level: Optional minimum level filter
-            
-        Returns:
-            List of dicts with language proficiency data
-        """
-        query = UserLanguage.query.filter_by(user_id=user_id)
-        
+        query = UserLanguage.query.filter_by(
+            user_id=user_id
+        ).join(Language, UserLanguage.language_id == Language.id)
+
         if min_level is not None:
             query = query.filter(UserLanguage.language_level >= min_level)
-        
-        # Order by level DESC, then XP DESC
+
         query = query.order_by(
             UserLanguage.language_level.desc(),
             UserLanguage.language_xp.desc()
         )
-        
+
         return [
             {
-                "language": record.language,
+                "language": record.language.name,
                 "level": record.language_level,
                 "xp": record.language_xp,
                 "last_activity_at": record.last_activity_at.isoformat()
+                    if record.last_activity_at else None
             }
             for record in query.all()
         ]
     
-    def can_create_community(self, user_id, language):
-        """
-        Check if user can create a community for a language.
-        Requires minimum language level (gatekeeping).
-        
-        Args:
-            user_id: User ID
-            language: Language name
-            
-        Returns:
-            Dict with:
-            - can_create: Boolean
-            - current_level: User's current level (or 0 if no experience)
-            - required_level: Minimum level required
-            - reason: Human-readable reason if can't create
-        """
+    def can_create_community(self, user_id, language_name):
+        language = Language.query.filter_by(name=language_name).first()
+        if not language:
+            return {
+                "can_create": False,
+                "current_level": 0,
+                "required_level": self.COMMUNITY_LEADERSHIP_LEVEL,
+                "reason": f"'{language_name}' is not a recognised language."
+            }
+
         lang_record = UserLanguage.query.filter_by(
             user_id=user_id,
-            language=language
+            language_id=language.id
         ).first()
-        
+
         current_level = lang_record.language_level if lang_record else 0
         required_level = self.COMMUNITY_LEADERSHIP_LEVEL
-        
         can_create = current_level >= required_level
-        
+
         if can_create:
             reason = None
         elif current_level == 0:
             reason = (
-                f"You need {language} experience to create a {language} community. "
-                f"Create projects using {language} to gain proficiency."
+                f"You need {language_name} experience to create a "
+                f"{language_name} community. "
+                f"Create projects using {language_name} to gain proficiency."
             )
         else:
             reason = (
-                f"You need {language} level {required_level} to create a {language} community. "
-                f"Your current level: {current_level}. "
-                f"Keep coding in {language} to level up!"
+                f"You need {language_name} level {required_level}. "
+                f"Your current level: {current_level}."
             )
-        
+
         return {
             "can_create": can_create,
             "current_level": current_level,
@@ -262,20 +250,14 @@ class LanguageProficiencyService:
             "reason": reason
         }
     
-    def get_top_users_by_language(self, language, limit=10):
-        """
-        Get top users for a specific language (leaderboard).
-        
-        Args:
-            language: Language name
-            limit: Number of users to return
-            
-        Returns:
-            List of dicts with user_id, level, xp
-        """
+    def get_top_users_by_language(self, language_name, limit=10):
+        language = Language.query.filter_by(name=language_name).first()
+        if not language:
+            return []
+
         top_users = (
             UserLanguage.query
-            .filter_by(language=language)
+            .filter_by(language_id=language.id)
             .order_by(
                 UserLanguage.language_level.desc(),
                 UserLanguage.language_xp.desc()
@@ -283,11 +265,11 @@ class LanguageProficiencyService:
             .limit(limit)
             .all()
         )
-        
+
         return [
             {
                 "user_id": record.user_id,
-                "language": record.language,
+                "language": language_name,
                 "level": record.language_level,
                 "xp": record.language_xp
             }

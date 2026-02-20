@@ -6,12 +6,13 @@ Admin-only routes for XP management, penalties, and bonuses.
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.extensions import db
 from app.models.user import User
 from app.models.college import College
 from app.services.xp_service import XPService
 from app.services.skill_service import SkillService
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
+admin_bp = Blueprint('admin', __name__)
 
 
 # ===== ADMIN DECORATOR =====
@@ -29,7 +30,7 @@ def admin_required(fn):
     @jwt_required()
     def wrapper(*args, **kwargs):
         user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         
         # TODO: Replace with your actual admin check
         # Example: Check if user is a college admin
@@ -39,17 +40,16 @@ def admin_required(fn):
                 'error': 'Admin privileges required'
             }), 403
         
-        college = College.query.get(user.college_id)
+        college = db.session.get(College, user.college_id)
         if not college:
             return jsonify({
                 'success': False,
                 'error': 'Invalid college association'
             }), 403
         
-        # If you have an is_admin field, check it here
-        # if not user.is_admin:
-        #     return jsonify({'error': 'Admin only'}), 403
-        
+        if not user.is_admin:
+            return jsonify({'success': False, 'error': 'Admin only'}), 403
+
         return fn(*args, **kwargs)
     
     return wrapper
@@ -74,7 +74,7 @@ def apply_penalty(user_id):
         400: Invalid request
         404: User not found
     """
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     if not user:
         return jsonify({
@@ -82,30 +82,30 @@ def apply_penalty(user_id):
             'error': 'User not found'
         }), 404
     
-    data = request.json
-    
+    data = request.get_json(silent=True)
+
     # Validate input
     if not data or 'amount' not in data or 'reason' not in data:
         return jsonify({
             'success': False,
             'error': 'Missing required fields: amount, reason'
         }), 400
-    
+
     amount = data.get('amount')
     reason = data.get('reason')
-    
+
     if not isinstance(amount, int) or amount <= 0:
         return jsonify({
             'success': False,
             'error': 'Amount must be a positive integer'
         }), 400
-    
+
     if not reason or len(reason.strip()) == 0:
         return jsonify({
             'success': False,
             'error': 'Reason cannot be empty'
         }), 400
-    
+
     # Apply penalty
     result = XPService.remove_xp(
         user=user,
@@ -142,7 +142,7 @@ def award_bonus(user_id):
         400: Invalid request
         404: User not found
     """
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     if not user:
         return jsonify({
@@ -150,24 +150,24 @@ def award_bonus(user_id):
             'error': 'User not found'
         }), 404
     
-    data = request.json
-    
+    data = request.get_json(silent=True)
+
     # Validate input
     if not data or 'amount' not in data or 'reason' not in data:
         return jsonify({
             'success': False,
             'error': 'Missing required fields: amount, reason'
         }), 400
-    
+
     amount = data.get('amount')
     reason = data.get('reason')
-    
+
     if not isinstance(amount, int) or amount <= 0:
         return jsonify({
             'success': False,
             'error': 'Amount must be a positive integer'
         }), 400
-    
+
     # Award bonus (bypasses daily cap)
     result = XPService.award_xp(
         user=user,
@@ -205,7 +205,7 @@ def award_skill_xp(user_id):
         400: Invalid request
         404: User not found
     """
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     if not user:
         return jsonify({
@@ -213,8 +213,8 @@ def award_skill_xp(user_id):
             'error': 'User not found'
         }), 404
     
-    data = request.json
-    
+    data = request.get_json(silent=True)
+
     # Validate input
     if not data or 'skill_name' not in data or 'amount' not in data:
         return jsonify({
@@ -225,7 +225,14 @@ def award_skill_xp(user_id):
     skill_name = data.get('skill_name')
     amount = data.get('amount')
     reason = data.get('reason', 'Admin manual award')
-    
+
+    from app.constants.gamification import AVAILABLE_SKILLS
+    if skill_name not in AVAILABLE_SKILLS:
+        return jsonify({
+            'success': False,
+            'error': f'Invalid skill. Must be one of: {list(AVAILABLE_SKILLS)}'
+        }), 400
+
     # Award skill XP
     result = SkillService.award_skill_xp(
         user_id=user.id,
@@ -257,7 +264,7 @@ def get_user_stats(user_id):
         200: Complete user stats
         404: User not found
     """
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     if not user:
         return jsonify({
@@ -314,8 +321,8 @@ def bulk_bonus():
         200: Bulk bonus results
         400: Invalid request
     """
-    data = request.json
-    
+    data = request.get_json(silent=True)
+
     # Validate input
     if not data or 'user_ids' not in data or 'amount' not in data or 'reason' not in data:
         return jsonify({
@@ -327,10 +334,17 @@ def bulk_bonus():
     amount = data.get('amount')
     reason = data.get('reason')
     
+    MAX_BULK_TARGETS = 100
     if not isinstance(user_ids, list) or len(user_ids) == 0:
         return jsonify({
             'success': False,
             'error': 'user_ids must be a non-empty list'
+        }), 400
+
+    if len(user_ids) > MAX_BULK_TARGETS:
+        return jsonify({
+            'success': False,
+            'error': f'Cannot process more than {MAX_BULK_TARGETS} users at once'
         }), 400
     
     if not isinstance(amount, int) or amount <= 0:
@@ -343,7 +357,7 @@ def bulk_bonus():
     results = []
     
     for user_id in user_ids:
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         
         if not user:
             results.append({

@@ -220,7 +220,7 @@
   font-size: 16px;
   font-weight: 500;
   line-height: 24px;
-  border-radius: 12px;
+  border-radius: 999px;
   cursor: pointer;
   border: none;
   outline: none;
@@ -228,7 +228,7 @@
   text-decoration: none;
   /*
    * Smooth morph: border-radius needs a longer, gentler curve.
-   * Using [0.16,1,0.3,1] — gentle spring feel, not mechanical.
+   * Using [0.22,1,0.36,1] — softer ease for in/out symmetry.
    * All other props follow the same easing for coherence.
    */
   transition:
@@ -252,6 +252,10 @@
   pointer-events: none;
   }
 
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
   /* Primary button — signature morph interaction */
   .btn-primary {
   background-color: var(--accent-primary);
@@ -260,29 +264,29 @@
 
 .btn-primary:hover {
   background-color: var(--accent-hover);
-  border-radius: 999px;    /* MORPH — smooth because only border-radius is in transition */
   box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 .btn-primary:active {
   transform: scale(0.97);
-  border-radius: 12px;     /* Snaps back on press — intentional */
+  border-radius: 12px;
 }
 
 /* Secondary — NO morph, no radius change */
 .btn-secondary {
   background-color: transparent;
   color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .btn-secondary:hover {
   background-color: var(--bg-surface);
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: color-mix(in srgb, var(--accent-primary) 42%, white 58%);
 }
 
 .btn-secondary:active {
   transform: scale(0.98);
+  border-radius: 12px;
 }
 
   /* Ghost button — nav links, tertiary actions */
@@ -297,10 +301,14 @@
     background-color: var(--bg-surface);
   }
 
+  .btn-ghost:active {
+    border-radius: 12px;
+  }
+
   /* Icon button */
   .btn-icon {
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 999px;
     background-color: transparent;
     color: var(--text-secondary);
   }
@@ -308,6 +316,10 @@
   .btn-icon:hover {
     background-color: var(--bg-surface);
     color: var(--text-primary);
+  }
+
+  .btn-icon:active {
+    border-radius: 10px;
   }
 
   /* ----------------------------------------------------------
@@ -318,7 +330,7 @@
   .card {
     background-color: var(--bg-surface);
     border-radius: 14px;            /* Design system: card radius = 14px */
-    border: 1px solid var(--border-subtle);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 32px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25); /* Design system shadow */
     transition:
@@ -330,7 +342,7 @@
   .card:hover {
     transform: translateY(-2px);    /* Design system: hover lift = 2px */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-    border-color: rgba(255, 255, 255, 0.10);
+    border-color: color-mix(in srgb, var(--accent-primary) 35%, white 65%);
     /* No glow — design system explicit */
   }
 
@@ -403,8 +415,10 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 64px;
-    background-color: transparent;
-    border-bottom: 1px solid transparent;
+    background-color: color-mix(in srgb, var(--bg-surface) 78%, transparent);
+    border-bottom: 1px solid var(--border-subtle);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     transition:
       background-color 300ms ease,
       border-color 300ms ease,
@@ -413,9 +427,9 @@
 
   /* Triggered by JS on scroll > 10px */
   .navbar.scrolled {
-    background-color: var(--bg-surface);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background-color: color-mix(in srgb, var(--bg-surface) 88%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-bottom-color: var(--border-subtle);
   }
 
@@ -452,6 +466,17 @@
     line-height: 80px;
     font-weight: 600;
   }
+  
+  @keyframes sidebar-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
 
   .text-section-title {
     font-family: 'Clash Display', sans-serif;
@@ -462,8 +487,8 @@
 
   .text-subsection {
     font-family: 'Satoshi', sans-serif;
-    font-size: 28px;
-    line-height: 36px;
+    font-size: 22px;
+    line-height: 30px;
     font-weight: 600;
   }
 

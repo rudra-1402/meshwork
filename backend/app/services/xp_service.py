@@ -116,10 +116,13 @@ class XPService:
             }
         )
         db.session.add(transaction)
-        
-        # Commit transaction
-        db.session.commit()
-        
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            raise
+
         return {
             'success': True,
             'xp_awarded': actual_amount,
@@ -185,10 +188,13 @@ class XPService:
             }
         )
         db.session.add(transaction)
-        
-        # Commit
-        db.session.commit()
-        
+
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            raise
+
         return {
             'success': True,
             'xp_removed': amount,
@@ -211,14 +217,14 @@ class XPService:
         Returns:
             dict: Result from award_xp()
         """
-        amount = XP_AMOUNTS.get(action_type, 0)
-        
-        if amount == 0:
+        if action_type not in XP_AMOUNTS:
             return {
                 'success': False,
                 'xp_awarded': 0,
                 'reason': f'Unknown action type: {action_type}'
             }
+
+        amount = XP_AMOUNTS[action_type]
         
         return XPService.award_xp(
             user=user,
@@ -371,7 +377,7 @@ class XPService:
         Returns:
             list: Top users with XP and level
         """
-        from app.models.user_gamified import User
+        from app.models.user import User
         
         top_users = (
             User.query

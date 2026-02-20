@@ -6,6 +6,7 @@ from app.models.community_task import CommunityTask
 from app.models.task_completion import TaskCompletion
 from app.models.community_message import CommunityMessage
 from app.models.user import User
+from app.services.xp_service import XPService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -90,7 +91,7 @@ class CommunityService:
         Returns:
             tuple: (success: bool, message: str, community: Community or None)
         """
-        community = Community.query.get(community_id)
+        community = db.session.get(Community, community_id)
         
         if not community:
             return False, "Community not found", None
@@ -143,7 +144,7 @@ class CommunityService:
         Returns:
             tuple: (success: bool, message: str)
         """
-        community = Community.query.get(community_id)
+        community = db.session.get(Community, community_id)
         
         if not community:
             return False, "Community not found"
@@ -198,7 +199,7 @@ class CommunityService:
         Returns:
             tuple: (success: bool, message: str)
         """
-        community = Community.query.get(community_id)
+        community = db.session.get(Community, community_id)
         
         if not community or community.created_by != admin_id:
             return False, "Only the admin can remove moderators"
@@ -221,7 +222,7 @@ class CommunityService:
     @staticmethod
     def is_admin(community_id, user_id):
         """Check if user is admin of community"""
-        community = Community.query.get(community_id)
+        community = db.session.get(Community, community_id)
         return community and community.created_by == user_id
     
     @staticmethod
@@ -343,7 +344,7 @@ class CommunityService:
         Returns:
             tuple: (success: bool, message: str, xp_awarded: int)
         """
-        task = CommunityTask.query.get(task_id)
+        task = db.session.get(CommunityTask, task_id)
         
         if not task or not task.is_active:
             return False, "Task not found or inactive", 0
@@ -377,12 +378,17 @@ class CommunityService:
         if not was_new:
             return False, "Action already completed", 0
         
-        # Award XP to user (update user.xp)
-        user = User.query.get(user_id)
-        if user and hasattr(user, 'xp'):
-            user.xp += action_xp
-        
-        db.session.commit()
+        # Award XP to user via XPService (enforces daily cap, diminishing returns, audit trail)
+        user = db.session.get(User, user_id)
+        if user and action_xp > 0:
+            XPService.award_xp(
+                user=user,
+                amount=action_xp,
+                source='task_complete',
+                description='Community task action completed'
+            )
+        else:
+            db.session.commit()
         
         logger.info(
             f"User {user_id} completed action {action_id} of task {task_id}, "
@@ -422,11 +428,145 @@ class CommunityService:
         ).first()
 
 
+    # ===== JOIN COMMUNITY =====
+
+    @staticmethod
+    def join_community(community_id, user_id):
+        """
+        Add a user as a member of a community.
+
+        Prevents duplicate membership silently (idempotent).
+
+        Args:
+            community_id: Integer
+            user_id: Integer
+
+        Returns:
+            tuple: (joined: bool, message: str)
+        """
+        community = db.session.get(Community, community_id)
+        if not community:
+            return False, "Community not found"
+
+        user = db.session.get(User, user_id)
+        if not user:
+            return False, "User not found"
+
+        can_join, reason = CommunityService.can_user_join(community, user)
+        if not can_join:
+            return False, reason
+
+        member = CommunityMember(
+            user_id=user_id,
+            community_id=community_id
+        )
+        db.session.add(member)
+        community.increment_member_count()
+        db.session.commit()
+
+        logger.info(f"User {user_id} joined community {community_id}")
+
+        return True, "Joined community successfully"
+
+    # ===== SEND MESSAGE =====
+
+    @staticmethod
+    def send_message(community_id, user_id, message_text):
+        """
+        Persist a new message in a community.
+
+        Caller is responsible for verifying the user is the community admin
+        before calling this method.
+
+        Args:
+            community_id: Integer
+            user_id: Integer (sender)
+            message_text: String (non-empty, pre-validated by caller)
+
+        Returns:
+            tuple: (success: bool, message: str, msg_obj: CommunityMessage or None)
+        """
+        try:
+            msg = CommunityMessage(
+                user_id=user_id,
+                community_id=community_id,
+                message=message_text
+            )
+            db.session.add(msg)
+            db.session.commit()
+
+            logger.info(f"User {user_id} sent message in community {community_id}")
+
+            return True, "Message sent successfully", msg
+
+        except Exception as exc:
+            db.session.rollback()
+            logger.error(f"Failed to send message in community {community_id}: {exc}")
+            return False, "Failed to send message", None
+
+    # ===== MEMBERSHIP ELIGIBILITY =====
+
+    @staticmethod
+    def can_user_join(community, user):
+        """
+        Check if a user is eligible to join a community.
+
+        Args:
+            community: Community instance
+            user: User instance
+
+        Returns:
+            tuple: (can_join: bool, reason: str)
+        """
+        existing = CommunityMember.query.filter_by(
+            user_id=user.id,
+            community_id=community.community_id
+        ).first()
+        if existing:
+            return False, "Already a member"
+
+        if community.current_member_count >= community.max_members:
+            return False, "Community is full"
+
+        if not community.is_active:
+            return False, "Community is not active"
+
+        if community.is_archived:
+            return False, "Community is archived"
+
+        if community.is_college_specific and user.college_id != community.college_id:
+            return False, "This community is only for students from a specific college"
+
+        return True, "Can join"
+
+    # ===== TASK STATS =====
+
+    @staticmethod
+    def get_task_completion_stats(task_id):
+        """
+        Get completion statistics for a community task.
+
+        Args:
+            task_id: CommunityTask PK
+
+        Returns:
+            dict: {total_users, completed_all, average_completion}
+        """
+        completions = TaskCompletion.query.filter_by(task_id=task_id).all()
+
+        if not completions:
+            return {"total_users": 0, "completed_all": 0, "average_completion": 0.0}
+
+        total_users = len(completions)
+        completed_all = sum(1 for c in completions if c.completion_percentage >= 100.0)
+        avg_completion = sum(c.completion_percentage for c in completions) / total_users
+
+        return {
+            "total_users": total_users,
+            "completed_all": completed_all,
+            "average_completion": round(avg_completion, 1),
+        }
+
+
 # Create singleton instance for easy importing
 community_service = CommunityService()
-
-
-# Legacy function for backward compatibility
-def create_community_service(**kwargs):
-    """Legacy wrapper - use CommunityService.create_community() instead"""
-    return CommunityService.create_community(**kwargs)

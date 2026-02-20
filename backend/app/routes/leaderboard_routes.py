@@ -6,15 +6,17 @@ Leaderboards for XP, streaks, and skills.
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
+from app.extensions import db
 from app.services.xp_service import XPService
 from app.services.skill_service import SkillService
 from app.services.streak_service import StreakService
 from app.constants.gamification import AVAILABLE_SKILLS
 
-leaderboards_bp = Blueprint('leaderboards', __name__, url_prefix='/api/leaderboards')
+leaderboards_bp = Blueprint('leaderboards', __name__)
 
 
 @leaderboards_bp.route('/xp', methods=['GET'])
+@jwt_required()
 def xp_leaderboard():
     """
     Get top users by total XP.
@@ -25,8 +27,8 @@ def xp_leaderboard():
     Returns:
         200: Top users with XP and level
     """
-    limit = min(int(request.args.get('limit', 10)), 50)
-    
+    limit = min(request.args.get('limit', 10, type=int) or 10, 50)
+
     leaderboard = XPService.get_xp_leaderboard(limit=limit)
     
     return jsonify({
@@ -38,6 +40,7 @@ def xp_leaderboard():
 
 
 @leaderboards_bp.route('/streak', methods=['GET'])
+@jwt_required()
 def streak_leaderboard():
     """
     Get top users by current streak.
@@ -48,8 +51,8 @@ def streak_leaderboard():
     Returns:
         200: Top users with streak info
     """
-    limit = min(int(request.args.get('limit', 10)), 50)
-    
+    limit = min(request.args.get('limit', 10, type=int) or 10, 50)
+
     leaderboard = StreakService.get_streak_leaderboard(limit=limit)
     
     return jsonify({
@@ -83,8 +86,8 @@ def skill_leaderboard(skill_name):
             'available_skills': AVAILABLE_SKILLS
         }), 400
     
-    limit = min(int(request.args.get('limit', 10)), 50)
-    
+    limit = min(request.args.get('limit', 10, type=int) or 10, 50)
+
     leaderboard = SkillService.get_skill_leaderboard(skill_name, limit=limit)
     
     return jsonify({
@@ -112,6 +115,7 @@ def available_skills():
 
 
 @leaderboards_bp.route('/all', methods=['GET'])
+@jwt_required()
 def all_leaderboards():
     """
     Get all leaderboards in one response.
@@ -158,7 +162,7 @@ def my_rank():
     from sqlalchemy import func
     
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     if not user:
         return jsonify({'error': 'User not found'}), 404

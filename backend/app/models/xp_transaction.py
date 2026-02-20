@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class XPTransaction(db.Model):
@@ -37,7 +37,7 @@ class XPTransaction(db.Model):
     balance_after = db.Column(db.Integer, nullable=False)
     
     # Timestamp
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     
     # Metadata (JSON for additional context)
     extra_data = db.Column(db.JSON, nullable=True)
@@ -85,7 +85,7 @@ class XPTransaction(db.Model):
             related_entity_id=related_entity_id,
             balance_before=balance_before,
             balance_after=balance_after,
-            metadata=metadata
+            extra_data=metadata
         )
     
     @staticmethod
@@ -120,10 +120,10 @@ class XPTransaction(db.Model):
         Returns:
             Dict with total_xp, transactions, breakdown_by_source
         """
-        from datetime import datetime, timedelta
+        from datetime import datetime, timedelta, timezone
         
-        # Start and end of day
-        start = datetime.combine(date_obj, datetime.min.time())
+        # Start and end of day — must be tz-aware to match the UTC-aware created_at column
+        start = datetime.combine(date_obj, datetime.min.time()).replace(tzinfo=timezone.utc)
         end = start + timedelta(days=1)
         
         transactions = (

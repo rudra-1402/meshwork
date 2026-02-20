@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class TaskCompletion(db.Model):
@@ -33,8 +33,8 @@ class TaskCompletion(db.Model):
     xp_awarded = db.Column(db.Integer, default=0, nullable=False)
     
     # Timestamps
-    started_at = db.Column(db.DateTime, default=datetime.utcnow)
-    last_action_at = db.Column(db.DateTime, default=datetime.utcnow)
+    started_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    last_action_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = db.Column(db.DateTime, nullable=True)  # Set when 100% complete
 
     # ===== Relationships =====
@@ -64,22 +64,28 @@ class TaskCompletion(db.Model):
         if self.completed_actions is None:
             self.completed_actions = []
         
+        # A task with no defined actions cannot be marked as complete
+        if not self.task.actions:
+            return False
+        
         # Check if already completed
         if action_id in self.completed_actions:
             return False
         
         # Mark as complete
-        self.completed_actions.append(action_id)
+        if action_xp < 0:
+            raise ValueError(f"action_xp must be non-negative, got {action_xp}")
+        self.completed_actions = self.completed_actions + [action_id]
         self.xp_awarded += action_xp
-        self.last_action_at = datetime.utcnow()
+        self.last_action_at = datetime.now(timezone.utc)
         
         # Update completion percentage
-        total_actions = len(self.task.actions) if self.task.actions else 1
+        total_actions = len(self.task.actions)
         self.completion_percentage = (len(self.completed_actions) / total_actions) * 100.0
         
         # Mark as fully completed if 100%
         if self.completion_percentage >= 100.0 and not self.completed_at:
-            self.completed_at = datetime.utcnow()
+            self.completed_at = datetime.now(timezone.utc)
         
         return True
     
@@ -97,13 +103,18 @@ class TaskCompletion(db.Model):
         if not self.completed_actions or action_id not in self.completed_actions:
             return False
         
-        self.completed_actions.remove(action_id)
+        updated = list(self.completed_actions)
+        updated.remove(action_id)
+        self.completed_actions = updated
         self.xp_awarded = max(0, self.xp_awarded - action_xp)
-        self.last_action_at = datetime.utcnow()
+        self.last_action_at = datetime.now(timezone.utc)
         
         # Update completion percentage
-        total_actions = len(self.task.actions) if self.task.actions else 1
-        self.completion_percentage = (len(self.completed_actions) / total_actions) * 100.0
+        total_actions = len(self.task.actions) if self.task.actions else 0
+        self.completion_percentage = (
+            (len(self.completed_actions) / total_actions) * 100.0
+            if total_actions > 0 else 0.0
+        )
         
         # Clear completed_at if no longer 100%
         if self.completion_percentage < 100.0:

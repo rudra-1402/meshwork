@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class Community(db.Model):
@@ -50,18 +50,22 @@ class Community(db.Model):
     
     created_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc)
     )
     
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
     )
 
     # ===== Relationships =====
     creator = db.relationship("User", foreign_keys=[created_by], backref="created_communities")
     college = db.relationship("College", backref="communities")
+
+    __table_args__ = (
+        db.Index('idx_community_college_id', 'college_id'),
+    )
     
     def __repr__(self):
         return f"<Community {self.community_name}>"
@@ -70,46 +74,15 @@ class Community(db.Model):
         """Check if community has reached member limit"""
         return self.current_member_count >= self.max_members
     
-    def can_user_join(self, user):
-        """
-        Check if a user is eligible to join this community.
-        
-        Args:
-            user: User instance
-            
-        Returns:
-            tuple: (can_join: bool, reason: str)
-        """
-        # Check if already a member
-        from app.models.community_member import CommunityMember
-        existing = CommunityMember.query.filter_by(
-            user_id=user.id,
-            community_id=self.community_id
-        ).first()
-        
-        if existing:
-            return False, "Already a member"
-        
-        # Check if community is full
-        if self.is_full():
-            return False, "Community is full"
-        
-        # Check if community is active
-        if not self.is_active:
-            return False, "Community is not active"
-        
-        if self.is_archived:
-            return False, "Community is archived"
-        
-        # Check college restriction
-        if self.is_college_specific and user.college_id != self.college_id:
-            return False, "This community is only for students from a specific college"
-        
-        return True, "Can join"
-    
+    # Eligibility check → CommunityService.can_user_join(community, user)
+
     def increment_member_count(self):
-        """Increment member count (called when user joins)"""
-        self.current_member_count += 1
+        """Increment member count atomically at DB level (called when user joins)"""
+        db.session.execute(
+            db.update(Community).where(
+                Community.community_id == self.community_id
+            ).values(current_member_count=Community.current_member_count + 1)
+        )
     
     def decrement_member_count(self):
         """Decrement member count (called when user leaves)"""

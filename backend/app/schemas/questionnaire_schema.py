@@ -17,6 +17,7 @@ QUESTIONNAIRE_SCHEMA = {
     "q2_team_roles": {
         "type": "list",
         "required": True,
+        "min_items": 1,
         "max_items": 2,
         "allowed_values": [
             "Building core features",
@@ -189,6 +190,9 @@ def validate_questionnaire(data):
                 )
         
         elif rules["type"] == "integer":
+            if isinstance(value, bool):
+                errors.append(f"{field_name} must be an integer, not boolean")
+                continue
             if not isinstance(value, int):
                 errors.append(f"{field_name} must be an integer, got {type(value).__name__}")
                 continue

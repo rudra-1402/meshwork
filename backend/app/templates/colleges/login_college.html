@@ -35,7 +35,7 @@
                 <h2 class="text-3xl font-bold text-graphite mb-2">College Login</h2>
                 <p class="text-graphite/60 mb-8">Access your institution dashboard</p>
                 
-                <form method="POST" action="/login/college" class="space-y-6">
+                <form method="POST" action="/legacy/college-auth/login/college" class="space-y-6">
                     <div>
                         <label class="block text-graphite font-medium mb-2">Email</label>
                         <input type="email" name="email" class="input-glass" placeholder="admin@college.edu" required>
@@ -51,12 +51,12 @@
                 
                 <div class="mt-8 pt-6 border-t border-graphite/20">
                     <p class="text-center text-graphite/70 mb-4">
-                        Don't have an account? <a href="/signup/college" class="text-digital-violet font-semibold hover:text-safety-orange transition-colors">Register your college</a>
+                        Don't have an account? <a href="/legacy/college-auth/signup/college" class="text-digital-violet font-semibold hover:text-safety-orange transition-colors">Register your college</a>
                     </p>
                     <p class="text-center text-graphite/50 text-sm mb-3">Looking for:</p>
                     <div class="flex gap-2 justify-center">
                         <a href="/login/user" class="px-3 py-1 text-xs rounded-lg border border-deep-growth text-deep-growth hover:bg-deep-growth hover:text-white transition-all">Student Login</a>
-                        <a href="/login/personnel" class="px-3 py-1 text-xs rounded-lg border border-fresh-shoot text-fresh-shoot hover:bg-fresh-shoot hover:text-white transition-all">Personnel Login</a>
+                        <a href="/legacy/college-auth/login/personnel" class="px-3 py-1 text-xs rounded-lg border border-fresh-shoot text-fresh-shoot hover:bg-fresh-shoot hover:text-white transition-all">Personnel Login</a>
                     </div>
                 </div>
             </div>

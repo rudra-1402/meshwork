@@ -46,83 +46,100 @@ class StreakService:
             user.current_streak = 1
             user.max_streak = 1
             user.last_login_date = today
-            db.session.commit()
-            
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                raise
+
             return {
                 'streak_continued': True,
+                'first_login_today': True,
                 'current_streak': 1,
                 'bonus_xp': 0,
                 'message': 'Welcome! Your streak has started!',
                 'milestone_reached': False
             }
-        
+
         # Case 2: Already logged in today
         if user.last_login_date == today:
             return {
                 'streak_continued': False,
+                'first_login_today': False,
                 'current_streak': user.current_streak,
                 'bonus_xp': 0,
                 'message': 'Already logged in today',
                 'milestone_reached': False
             }
-        
+
         # Case 3: Check if streak continues (logged in yesterday)
         yesterday = today - timedelta(days=1)
-        
+
         if user.last_login_date == yesterday:
             # Streak continues!
             old_streak = user.current_streak
             user.current_streak += 1
             user.last_login_date = today
-            
+
             # Update max streak
             if user.current_streak > user.max_streak:
                 user.max_streak = user.current_streak
-            
+
             # Check for milestone bonus
             bonus_xp = STREAK_BONUS_XP.get(user.current_streak, 0)
             milestone_reached = bonus_xp > 0
-            
-            db.session.commit()
-            
-            # Award bonus XP if milestone reached
-            if bonus_xp > 0:
-                from app.services.xp_service import XPService
-                xp_result = XPService.award_xp(
-                    user=user,
-                    amount=bonus_xp,
-                    source=f'streak_bonus_{user.current_streak}',
-                    description=f'{user.current_streak} day streak milestone bonus!',
-                    bypass_cap=True  # Streak bonuses bypass daily cap
-                )
-                
-                if not xp_result['success']:
-                    # Fallback if XP award failed (shouldn't happen)
-                    bonus_xp = 0
-            
+
+            # Award milestone XP inside the same logical unit — XPService.award_xp
+            # commits internally; if it fails it rolls back its own transaction and
+            # re-raises, which we catch here to roll back the streak changes too.
+            try:
+                db.session.flush()  # Stage streak fields without committing yet
+                if bonus_xp > 0:
+                    from app.services.xp_service import XPService
+                    xp_result = XPService.award_xp(
+                        user=user,
+                        amount=bonus_xp,
+                        source=f'streak_bonus_{user.current_streak}',
+                        description=f'{user.current_streak} day streak milestone bonus!',
+                        bypass_cap=True  # Streak bonuses bypass daily cap
+                    )
+                    if not xp_result['success']:
+                        bonus_xp = 0
+                else:
+                    db.session.commit()
+            except Exception:
+                db.session.rollback()
+                raise
+
             message = f'{user.current_streak} day streak!'
             if milestone_reached:
-                message += f' 🎉 Milestone bonus: +{bonus_xp} XP!'
-            
+                message += f' Milestone bonus: +{bonus_xp} XP!'
+
             return {
                 'streak_continued': True,
+                'first_login_today': True,
                 'current_streak': user.current_streak,
                 'old_streak': old_streak,
                 'bonus_xp': bonus_xp,
                 'message': message,
                 'milestone_reached': milestone_reached
             }
-        
+
         # Case 4: Streak broken
         else:
             old_streak = user.current_streak
             user.current_streak = 1
             user.last_login_date = today
-            
-            db.session.commit()
-            
+
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                raise
+
             return {
                 'streak_continued': False,
+                'first_login_today': True,
                 'current_streak': 1,
                 'old_streak': old_streak,
                 'bonus_xp': 0,
@@ -215,7 +232,7 @@ class StreakService:
         Returns:
             list: Top users by current streak
         """
-        from app.models.user_gamified import User
+        from app.models.user import User
         
         top_users = (
             User.query
@@ -274,8 +291,8 @@ class StreakService:
         yesterday = today - timedelta(days=1)
         if user.last_login_date == yesterday:
             # Rough estimate: assume 12 hours remaining in day
-            from datetime import datetime
-            now = datetime.now()
+            from datetime import datetime, timezone
+            now = datetime.now(timezone.utc)
             hours_until_midnight = 24 - now.hour
             
             return {

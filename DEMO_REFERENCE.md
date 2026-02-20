@@ -3,12 +3,12 @@
 ## 📋 Demo Credentials
 
 ### Personnel (HOD) Login:
-- **URL:** http://localhost:5000/login/personnel
+- **URL:** http://localhost:5000/legacy/college-auth/login/personnel
 - **Email:** hod001-hod@mitindia.edu
 - **Password:** hod123
 
 ### Student Signup (Whitelisted Emails):
-- **URL:** http://localhost:5000/signup/user
+- **URL:** http://localhost:5000/legacy/auth/signup/user
 - **Emails:** 
   - 2024001@mitindia.edu (Amit Sharma)
   - 2024002@mitindia.edu (Priya Patel)
@@ -21,7 +21,7 @@
 ## 🚀 Demo Flow
 
 ### 1. Personnel Dashboard Demo (5 min)
-1. Login as HOD: http://localhost:5000/login/personnel
+1. Login as HOD: http://localhost:5000/legacy/college-auth/login/personnel
 2. View dashboard: Shows stats (5 whitelisted, 0 registered)
 3. View students: http://localhost:5000/personnel/students (shows existing students)
 4. Manage whitelist: http://localhost:5000/personnel/whitelist
@@ -34,7 +34,7 @@
 
 ### 3. Student Signup Demo (5 min)
 1. Logout personnel
-2. Go to student signup: http://localhost:5000/signup/user
+2. Go to student signup: http://localhost:5000/legacy/auth/signup/user
 3. Fill form:
    - First Name: Test
    - Last Name: Student

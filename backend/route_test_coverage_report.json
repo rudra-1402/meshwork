@@ -1,0 +1,2482 @@
+{
+  "summary": {
+    "total_routes": 77,
+    "covered_routes": 77,
+    "uncovered_routes": 0,
+    "covered_missing_success": 0,
+    "covered_missing_failure": 0
+  },
+  "coverage": [
+    {
+      "endpoint": "root",
+      "route": "/",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_public_root_and_health_routes",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_failure_root_wrong_method",
+          "status_codes": [
+            405
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "main_routes.landing",
+      "route": "/api/",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_public_root_and_health_routes",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_failure_api_root_wrong_method",
+          "status_codes": [
+            405
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "admin.award_bonus",
+      "route": "/api/admin/bonus/<int:user_id>",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_admin_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "admin.bulk_bonus",
+      "route": "/api/admin/bulk-bonus",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_admin_bulk_bonus_route",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "admin.apply_penalty",
+      "route": "/api/admin/penalty/<int:user_id>",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_admin_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "admin.award_skill_xp",
+      "route": "/api/admin/skill-xp/<int:user_id>",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_admin_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "admin.get_user_stats",
+      "route": "/api/admin/user-stats/<int:user_id>",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_admin_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "unified_auth.check_username",
+      "route": "/api/auth/check-username",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_public_check_username_route",
+          "status_codes": [
+            200,
+            400
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "unified_auth.unified_login",
+      "route": "/api/auth/login",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_login_wrong_password",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_login_missing_fields",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_login_missing_email",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_login_empty_body",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_success_auth_login_route",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "unified_auth.unified_signup",
+      "route": "/api/auth/signup",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_signup_missing_required_fields",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_signup_invalid_email_format",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_signup_missing_user_type",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_success_auth_signup_route",
+          "status_codes": [
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "unified_auth.validate_email",
+      "route": "/api/auth/validate-email",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_validate_email_missing_body",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_validate_email_invalid_format",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_validate_email_unwhitelisted_domain_returns_400",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_validate_email_existing_user_is_registered",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_success_validate_email_route",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "college_api.college_login_api",
+      "route": "/api/college-auth/login",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_public_college_auth_routes",
+          "status_codes": [
+            201,
+            400
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "college_api.college_signup_api",
+      "route": "/api/college-auth/signup",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_public_college_auth_routes",
+          "status_codes": [
+            201,
+            400
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "community_routes.view_tasks",
+      "route": "/api/communities/<int:community_id>/tasks",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_community_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "community_routes.create_task",
+      "route": "/api/communities/<int:community_id>/tasks/create",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_community_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "community_routes.create_community",
+      "route": "/api/communities/create",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_community.py",
+          "test_name": "test_create_community_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_success_communities_create_explore_view_join",
+          "status_codes": [
+            200,
+            201
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_community_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "community_routes.explore_communities",
+      "route": "/api/communities/explore",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_community.py",
+          "test_name": "test_explore_communities_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_success_communities_create_explore_view_join",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "community_routes.join_community",
+      "route": "/api/communities/join/<int:community_id>",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_community.py",
+          "test_name": "test_join_community_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_communities_join_failure_not_found",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_community_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "community_routes.send_message",
+      "route": "/api/communities/message/<int:community_id>",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_community_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "community_routes.view_community",
+      "route": "/api/communities/view/<int:community_id>",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_community.py",
+          "test_name": "test_view_community_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_community_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "dashboard.dashboard",
+      "route": "/api/dashboard/dashboard",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_dashboard_routes",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "dashboard.college_dashboard",
+      "route": "/api/dashboard/dashboard/college",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_dashboard_college_route",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "dashboard.profile_page",
+      "route": "/api/dashboard/profile",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_dashboard_routes",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.list_events",
+      "route": "/api/events/",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_events.py",
+          "test_name": "test_personnel_can_submit_their_event",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_success_events_submit_route",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_failure_events_list_route_no_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.get_event",
+      "route": "/api/events/<int:event_id>",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_events_create_success_personnel",
+          "status_codes": [
+            201
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_events_create_failure_missing_json_body",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.approve_event",
+      "route": "/api/events/<int:event_id>/approve",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.cancel_event",
+      "route": "/api/events/<int:event_id>/cancel",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.complete_event",
+      "route": "/api/events/<int:event_id>/complete",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.confirm_attendance",
+      "route": "/api/events/<int:event_id>/confirm-attendance",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.drop_from_event",
+      "route": "/api/events/<int:event_id>/drop",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.get_event_participants",
+      "route": "/api/events/<int:event_id>/participants",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.register_for_event",
+      "route": "/api/events/<int:event_id>/register",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.reject_event",
+      "route": "/api/events/<int:event_id>/reject",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.submit_event_for_approval",
+      "route": "/api/events/<int:event_id>/submit",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_events.py",
+          "test_name": "test_submit_requires_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.get_event_tasks",
+      "route": "/api/events/<int:event_id>/tasks",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.create_event_task",
+      "route": "/api/events/<int:event_id>/tasks",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.create_event",
+      "route": "/api/events/create",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_events_create_success_personnel",
+          "status_codes": [
+            201
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_events_create_failure_missing_json_body",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.get_pending_events",
+      "route": "/api/events/pending",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.submit_task_action",
+      "route": "/api/events/tasks/<int:task_id>/submit-action",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "events.get_task_completion_summary",
+      "route": "/api/events/tasks/<int:task_id>/summary",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_events_route_matrix",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "health_check",
+      "route": "/api/health",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_public_root_and_health_routes",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_failure_health_wrong_method",
+          "status_codes": [
+            405
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "leaderboards.all_leaderboards",
+      "route": "/api/leaderboard/all",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_get_all_leaderboards",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_all_leaderboards_structure",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_failure_leaderboard_all_no_auth",
+          "status_codes": [
+            401
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "leaderboards.my_rank",
+      "route": "/api/leaderboard/my-rank",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_my_rank_requires_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_my_rank_returns_user_ranks",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_my_rank_calculates_correct_xp_rank",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_my_rank_includes_skill_ranks",
+          "status_codes": []
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "leaderboards.skill_leaderboard",
+      "route": "/api/leaderboard/skill/<skill_name>",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_skill_leaderboard_valid_skill",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_skill_leaderboard_invalid_skill",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_skill_leaderboard_case_sensitive",
+          "status_codes": [
+            400
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "leaderboards.available_skills",
+      "route": "/api/leaderboard/skills/available",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_get_available_skills",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_available_skills_includes_common_languages",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_failure_leaderboard_skills_available_bad_method",
+          "status_codes": [
+            405
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_failure_available_skills_wrong_method",
+          "status_codes": [
+            405
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "leaderboards.streak_leaderboard",
+      "route": "/api/leaderboard/streak",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_streak_leaderboard_returns_top_users",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_failure_leaderboard_streak_no_auth",
+          "status_codes": [
+            401
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "leaderboards.xp_leaderboard",
+      "route": "/api/leaderboard/xp",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_xp_leaderboard_returns_top_users",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_leaderboard.py",
+          "test_name": "test_xp_leaderboard_default_limit",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_failure_leaderboard_xp_no_auth",
+          "status_codes": [
+            401
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "personnel.get_college_email_config",
+      "route": "/api/personnel/college/email-config",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_personnel_email_config_patch_failure_missing_fields",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_personnel_email_config_get_success",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_personnel_whitelist_routes",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "personnel.set_college_email_config",
+      "route": "/api/personnel/college/email-config",
+      "methods": [
+        "PATCH"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_personnel_email_config_patch_failure_missing_fields",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_personnel_email_config_get_success",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_personnel_whitelist_routes",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "personnel.personnel_dashboard",
+      "route": "/api/personnel/dashboard",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_personnel_core_routes",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "personnel.personnel_profile",
+      "route": "/api/personnel/profile",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_personnel_profile_success",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_personnel_core_routes",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "personnel.view_students",
+      "route": "/api/personnel/students",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_personnel_core_routes",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "personnel.manage_whitelist",
+      "route": "/api/personnel/whitelist",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_personnel_whitelist_routes",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "personnel.add_student_email",
+      "route": "/api/personnel/whitelist/add-single",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_personnel_whitelist_add_single_failure_missing_email",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_personnel_whitelist_routes",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_personnel_whitelist_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "personnel.bulk_add_emails",
+      "route": "/api/personnel/whitelist/bulk-add",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_personnel_whitelist_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "personnel.remove_email",
+      "route": "/api/personnel/whitelist/remove/<int:email_id>",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_personnel_whitelist_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "profile.get_profile",
+      "route": "/api/profile/",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_own_profile",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_profile_requires_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_other_user_profile",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "profile.get_user_profile",
+      "route": "/api/profile/<int:user_id>",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_skills_requires_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_user_skills",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_skills_with_limit",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_skills_limit_capped",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_nonexistent_user_profile",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_stats_endpoint",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_failure_profile_stats_no_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_profile_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "profile.get_level_progress",
+      "route": "/api/profile/level-progress",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_profile_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "profile.get_skills",
+      "route": "/api/profile/skills",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_skills_requires_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_user_skills",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "profile.get_stats",
+      "route": "/api/profile/stats",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_questionnaire.py",
+          "test_name": "test_get_stats_endpoint",
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_failure_profile_stats_no_auth",
+          "status_codes": [
+            401
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "profile.get_streak_status",
+      "route": "/api/profile/streak-status",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_profile_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "profile.get_xp_history",
+      "route": "/api/profile/xp-history",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_profile_success_contracts",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "projects.discover_projects",
+      "route": "/api/projects",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_valid_jwt_reaches_projects",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_no_jwt_blocked_from_projects",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_discover_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_missing_title",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_invalid_status",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_invalid_visibility",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_invalid_membership_policy",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_title_max_length",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_discover_returns_list",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "projects.create_project",
+      "route": "/api/projects",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_valid_jwt_reaches_projects",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_auth.py",
+          "test_name": "test_no_jwt_blocked_from_projects",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_discover_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_missing_title",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_invalid_status",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_invalid_visibility",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_invalid_membership_policy",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_create_title_max_length",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_discover_returns_list",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "projects.delete_project",
+      "route": "/api/projects/<int:project_id>",
+      "methods": [
+        "DELETE"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_get_project_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_delete_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_get_nonexistent_project",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_update_nonexistent_project",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_cancel_nonexistent_project",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_project_core_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "projects.get_project",
+      "route": "/api/projects/<int:project_id>",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_get_project_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_delete_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_get_nonexistent_project",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_update_nonexistent_project",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_cancel_nonexistent_project",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_project_core_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "projects.update_project",
+      "route": "/api/projects/<int:project_id>",
+      "methods": [
+        "PATCH"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_get_project_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_delete_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_get_nonexistent_project",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_update_nonexistent_project",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_cancel_nonexistent_project",
+          "status_codes": [
+            404
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_project_core_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "projects.fork_project",
+      "route": "/api/projects/<int:project_id>/fork",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_projects.py",
+          "test_name": "test_fork_no_token",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_project_core_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "projects.add_member",
+      "route": "/api/projects/<int:project_id>/members",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_project_member_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "projects.remove_member",
+      "route": "/api/projects/<int:project_id>/members/<int:target_user_id>",
+      "methods": [
+        "DELETE"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_project_member_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "projects.update_member",
+      "route": "/api/projects/<int:project_id>/members/<int:target_user_id>",
+      "methods": [
+        "PATCH"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase4.py",
+          "test_name": "test_phase4_project_member_success_contracts",
+          "status_codes": [
+            200,
+            201
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "scoring.get_scoring_history",
+      "route": "/api/scoring/history",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_scoring_history_success",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "scoring.get_scoring_profile",
+      "route": "/api/scoring/profile",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_scoring_profile_failure_not_scored",
+          "status_codes": []
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase3.py",
+          "test_name": "test_success_scoring_profile_route",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "scoring.questionnaire_form",
+      "route": "/api/scoring/questionnaire",
+      "methods": [
+        "GET"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_scoring_questionnaire_success",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "scoring.retake_questionnaire",
+      "route": "/api/scoring/retake",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_scoring_retake_success",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    },
+    {
+      "endpoint": "scoring.submit_questionnaire",
+      "route": "/api/scoring/submit",
+      "methods": [
+        "POST"
+      ],
+      "tests": [
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_coverage.py",
+          "test_name": "test_uncovered_protected_routes_require_auth",
+          "status_codes": [
+            401
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_scoring_submit_failure_missing_responses",
+          "status_codes": [
+            400
+          ]
+        },
+        {
+          "file": "F:/MeshWork/backend/tests/test_route_contract_pairs_phase2.py",
+          "test_name": "test_scoring_submit_success_with_monkeypatched_service",
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "has_success_case": true,
+      "has_failure_case": true,
+      "covered": true
+    }
+  ],
+  "uncovered_routes": [],
+  "missing_success_routes": [],
+  "missing_failure_routes": []
+}

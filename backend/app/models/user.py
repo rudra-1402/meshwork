@@ -7,7 +7,8 @@ Business logic has been moved to services.
 
 from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, date
+from datetime import datetime, date, timezone
+from app.constants.gamification import DAILY_XP_CAP, LEVEL_FORMULA_DIVISOR
 import math
 
 
@@ -67,11 +68,11 @@ class User(db.Model):
     college = db.relationship("College", back_populates="users")
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
     )
 
     # ===== AUTHENTICATION METHODS =====
@@ -90,11 +91,14 @@ class User(db.Model):
     
     def update_username(self, new_username):
         """
-        Update username with availability check.
-        Returns (success: bool, message: str)
+        Update username.
+        Returns (success: bool, message: str).
+
+        NOTE: Does NOT pre-check availability — that SELECT would introduce a
+        TOCTOU race against the UNIQUE constraint on `username`. Callers must
+        catch sqlalchemy.exc.IntegrityError on db.session.commit() and surface
+        "Username already taken" to the user.
         """
-        if User.query.filter_by(username=new_username).first():
-            return False, "Username already taken"
         self.username = new_username
         return True, "Username updated successfully"
     
@@ -125,8 +129,8 @@ class User(db.Model):
         if xp < 0:
             return 1
         
-        # Standard formula: level = sqrt(xp / 100) + 1
-        level = int(math.sqrt(xp / 100)) + 1
+        # Standard formula: level = sqrt(xp / LEVEL_FORMULA_DIVISOR) + 1
+        level = int(math.sqrt(xp / LEVEL_FORMULA_DIVISOR)) + 1
         
         return max(1, level)
     
@@ -217,7 +221,7 @@ class User(db.Model):
             'current_streak': self.current_streak,
             'max_streak': self.max_streak,
             'daily_xp_earned': self.daily_xp_earned,
-            'daily_xp_remaining': max(0, 300 - self.daily_xp_earned),  # 300 = DAILY_XP_CAP
+            'daily_xp_remaining': max(0, DAILY_XP_CAP - self.daily_xp_earned),  # from constants.gamification
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
     

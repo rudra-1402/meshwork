@@ -5,6 +5,14 @@
 **Version:** 2.0  
 **Tested On:** Flask 2.3.x, Python 3.11+
 
+> ⚠️ Route Migration Note
+> 
+> Legacy SSR auth pages are mounted under `/legacy/*`:
+> - `/legacy/auth/*`
+> - `/legacy/college-auth/*`
+> 
+> Unified JSON auth for React remains under `/api/auth/*`.
+
 ---
 
 ## 📋 TABLE OF CONTENTS

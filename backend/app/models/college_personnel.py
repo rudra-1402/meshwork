@@ -6,7 +6,7 @@ Database schema for college staff, faculty, HODs, etc.
 
 from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class CollegePersonnel(db.Model):
@@ -38,8 +38,8 @@ class CollegePersonnel(db.Model):
     can_manage_students = db.Column(db.Boolean, default=False, nullable=False)
     can_manage_personnel = db.Column(db.Boolean, default=False, nullable=False)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     # Relationships
     college = db.relationship("College", backref="personnel")

@@ -13,7 +13,7 @@ from app.constants.gamification import (
     MAX_SKILL_XP_AWARD,
     AVAILABLE_SKILLS,
 )
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class SkillService:
@@ -91,7 +91,7 @@ class SkillService:
         
         # Update XP
         skill.xp += amount
-        skill.last_activity_at = datetime.utcnow()
+        skill.last_activity_at = datetime.now(timezone.utc)
         
         # Update level
         leveled_up, _, new_level = skill.update_level()
@@ -357,4 +357,62 @@ class SkillService:
             'prompt': prompt,
             'available_skills': AVAILABLE_SKILLS,
             'min_dominant_weight': MIN_DOMINANT_SKILL_WEIGHT
+        }
+
+    # ===== READ QUERIES (migrated from UserSkill model) =====
+
+    @staticmethod
+    def get_user_top_skills(user_id, limit=5):
+        """
+        Get a user's top skills ordered by XP.
+
+        Args:
+            user_id: User ID
+            limit: Max skills to return (default 5)
+
+        Returns:
+            List of UserSkill instances
+        """
+        return (
+            UserSkill.query
+            .filter_by(user_id=user_id)
+            .order_by(UserSkill.xp.desc())
+            .limit(limit)
+            .all()
+        )
+
+    @staticmethod
+    def get_user_skills_summary(user_id):
+        """
+        Full skills summary for profile display.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            dict: {total_skills, total_skill_xp, top_skills, level_breakdown}
+        """
+        all_skills = UserSkill.query.filter_by(user_id=user_id).all()
+
+        total_xp = sum(s.xp for s in all_skills)
+        top_skills = sorted(all_skills, key=lambda s: s.xp, reverse=True)[:5]
+
+        level_breakdown = {}
+        for skill in all_skills:
+            key = f"Level {skill.level}"
+            level_breakdown[key] = level_breakdown.get(key, 0) + 1
+
+        return {
+            "total_skills": len(all_skills),
+            "total_skill_xp": total_xp,
+            "top_skills": [
+                {
+                    "skill_name": s.skill_name,
+                    "level": s.level,
+                    "xp": s.xp,
+                    "last_activity": s.last_activity_at.isoformat() if s.last_activity_at else None,
+                }
+                for s in top_skills
+            ],
+            "level_breakdown": level_breakdown,
         }

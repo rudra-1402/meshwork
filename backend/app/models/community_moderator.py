@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class CommunityModerator(db.Model):
@@ -36,7 +36,7 @@ class CommunityModerator(db.Model):
     
     promoted_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc)
     )
     
     is_active = db.Column(db.Boolean, default=True, nullable=False)
@@ -49,6 +49,8 @@ class CommunityModerator(db.Model):
     # Composite unique constraint: one moderator role per user per community
     __table_args__ = (
         db.UniqueConstraint('user_id', 'community_id', name='uix_user_community_moderator'),
+        db.Index('idx_community_moderators_user_id', 'user_id'),
+        db.Index('idx_community_moderators_community_id', 'community_id'),
     )
     
     def __repr__(self):

@@ -1,5 +1,6 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
+from sqlalchemy.orm import validates
 
 
 class CommunityFile(db.Model):
@@ -38,14 +39,25 @@ class CommunityFile(db.Model):
     # Download count
     download_count = db.Column(db.Integer, default=0)
     
-    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    uploaded_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     
-    is_deleted = db.Column(db.Boolean, default=False)
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
 
     # ===== Relationships =====
     community = db.relationship("Community", backref="files")
     uploader = db.relationship("User", backref="uploaded_files")
-    
+
+    __table_args__ = (
+        db.Index('idx_community_files_community_id', 'community_id'),
+        db.Index('idx_community_files_uploaded_by', 'uploaded_by'),
+    )
+
+    @validates('file_path')
+    def validate_file_path(self, key, value):
+        if value and ('..' in value or value.startswith('/')):
+            raise ValueError("Invalid file path")
+        return value
+
     def __repr__(self):
         return f"<CommunityFile '{self.original_filename}'>"
     

@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class CommunityTask(db.Model):
@@ -49,11 +49,11 @@ class CommunityTask(db.Model):
     # Task status
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
     )
 
     # ===== Relationships =====
@@ -107,30 +107,4 @@ class CommunityTask(db.Model):
         
         return total_xp
     
-    def get_completion_stats(self):
-        """
-        Get statistics about how many users completed this task.
-        
-        Returns:
-            Dict with completion stats
-        """
-        from app.models.task_completion import TaskCompletion
-        
-        completions = TaskCompletion.query.filter_by(task_id=self.task_id).all()
-        
-        if not completions:
-            return {
-                "total_users": 0,
-                "completed_all": 0,
-                "average_completion": 0.0
-            }
-        
-        total_users = len(completions)
-        completed_all = sum(1 for c in completions if c.completion_percentage >= 100.0)
-        avg_completion = sum(c.completion_percentage for c in completions) / total_users
-        
-        return {
-            "total_users": total_users,
-            "completed_all": completed_all,
-            "average_completion": round(avg_completion, 1)
-        }
+    # Completion statistics → CommunityService.get_task_completion_stats(task_id)

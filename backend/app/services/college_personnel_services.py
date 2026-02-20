@@ -7,7 +7,7 @@ Handles authentication and management of college personnel (HODs, faculty, staff
 from app.extensions import db
 from app.models.college_personnel import CollegePersonnel
 from app.models.college import College
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def create_personnel(first_name, last_name, email, password, college_id, role, personnel_id=None):
@@ -27,7 +27,7 @@ def create_personnel(first_name, last_name, email, password, college_id, role, p
         tuple: (success: bool, message: str, personnel: CollegePersonnel or None)
     """
     # Validate college exists
-    college = College.query.get(college_id)
+    college = db.session.get(College, college_id)
     if not college:
         return False, "College not found", None
     
@@ -113,7 +113,7 @@ def get_personnel_by_id(personnel_id):
     Returns:
         CollegePersonnel or None: Personnel object if found
     """
-    return CollegePersonnel.query.get(personnel_id)
+    return db.session.get(CollegePersonnel, personnel_id)
 
 
 def get_college_personnel(college_id, include_inactive=False):
@@ -147,7 +147,7 @@ def update_personnel_permissions(personnel_id, can_manage_students=None, can_man
     Returns:
         tuple: (success: bool, message: str)
     """
-    personnel = CollegePersonnel.query.get(personnel_id)
+    personnel = db.session.get(CollegePersonnel, personnel_id)
     
     if not personnel:
         return False, "Personnel not found"
@@ -159,7 +159,7 @@ def update_personnel_permissions(personnel_id, can_manage_students=None, can_man
         if can_manage_personnel is not None:
             personnel.can_manage_personnel = can_manage_personnel
         
-        personnel.updated_at = datetime.utcnow()
+        personnel.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         
         return True, "Permissions updated successfully"
@@ -184,7 +184,7 @@ def update_personnel_info(personnel_id, first_name=None, last_name=None,
     Returns:
         tuple: (success: bool, message: str)
     """
-    personnel = CollegePersonnel.query.get(personnel_id)
+    personnel = db.session.get(CollegePersonnel, personnel_id)
     
     if not personnel:
         return False, "Personnel not found"
@@ -207,7 +207,7 @@ def update_personnel_info(personnel_id, first_name=None, last_name=None,
             personnel.role = role
             personnel.set_role_permissions()  # Update permissions based on new role
         
-        personnel.updated_at = datetime.utcnow()
+        personnel.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         
         return True, "Information updated successfully"
@@ -227,7 +227,7 @@ def deactivate_personnel(personnel_id):
     Returns:
         tuple: (success: bool, message: str)
     """
-    personnel = CollegePersonnel.query.get(personnel_id)
+    personnel = db.session.get(CollegePersonnel, personnel_id)
     
     if not personnel:
         return False, "Personnel not found"
@@ -237,7 +237,7 @@ def deactivate_personnel(personnel_id):
     
     try:
         personnel.is_active = False
-        personnel.updated_at = datetime.utcnow()
+        personnel.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         
         return True, "Personnel deactivated successfully"
@@ -257,7 +257,7 @@ def activate_personnel(personnel_id):
     Returns:
         tuple: (success: bool, message: str)
     """
-    personnel = CollegePersonnel.query.get(personnel_id)
+    personnel = db.session.get(CollegePersonnel, personnel_id)
     
     if not personnel:
         return False, "Personnel not found"
@@ -267,7 +267,7 @@ def activate_personnel(personnel_id):
     
     try:
         personnel.is_active = True
-        personnel.updated_at = datetime.utcnow()
+        personnel.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         
         return True, "Personnel activated successfully"
@@ -289,7 +289,7 @@ def change_personnel_password(personnel_id, old_password, new_password):
     Returns:
         tuple: (success: bool, message: str)
     """
-    personnel = CollegePersonnel.query.get(personnel_id)
+    personnel = db.session.get(CollegePersonnel, personnel_id)
     
     if not personnel:
         return False, "Personnel not found"
@@ -299,7 +299,7 @@ def change_personnel_password(personnel_id, old_password, new_password):
     
     try:
         personnel.set_password(new_password)
-        personnel.updated_at = datetime.utcnow()
+        personnel.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         
         return True, "Password changed successfully"

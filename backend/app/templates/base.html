@@ -101,12 +101,12 @@
                         </button>
                         <div class="absolute right-0 mt-2 w-48 glass-card-strong opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                             <a href="/login/user" class="block px-4 py-2 text-graphite hover:text-deep-growth transition-colors">Student Login</a>
-                            <a href="/login/personnel" class="block px-4 py-2 text-graphite hover:text-deep-growth transition-colors">Personnel Login</a>
-                            <a href="/login/college" class="block px-4 py-2 text-graphite hover:text-deep-growth transition-colors">College Login</a>
+                            <a href="/legacy/college-auth/login/personnel" class="block px-4 py-2 text-graphite hover:text-deep-growth transition-colors">Personnel Login</a>
+                            <a href="/legacy/college-auth/login/college" class="block px-4 py-2 text-graphite hover:text-deep-growth transition-colors">College Login</a>
                         </div>
                     </div>
                     
-                    <a href="/signup/user" class="px-4 py-2 rounded-lg bg-gradient-to-r from-deep-growth to-fresh-shoot text-white hover:shadow-lg transition-all">Signup</a>
+                    <a href="/legacy/auth/signup/user" class="px-4 py-2 rounded-lg bg-gradient-to-r from-deep-growth to-fresh-shoot text-white hover:shadow-lg transition-all">Signup</a>
                 {% endif %}
             </div>
             
@@ -137,9 +137,9 @@
             {% else %}
                 <a href="/" class="block text-gray-200 hover:text-white py-2">Home</a>
                 <a href="/login/user" class="block text-gray-200 hover:text-white py-2">Student Login</a>
-                <a href="/login/personnel" class="block text-gray-200 hover:text-white py-2">Personnel Login</a>
-                <a href="/login/college" class="block text-gray-200 hover:text-white py-2">College Login</a>
-                <a href="/signup/user" class="block text-white hover:text-fresh-shoot py-2">Signup</a>
+                <a href="/legacy/college-auth/login/personnel" class="block text-gray-200 hover:text-white py-2">Personnel Login</a>
+                <a href="/legacy/college-auth/login/college" class="block text-gray-200 hover:text-white py-2">College Login</a>
+                <a href="/legacy/auth/signup/user" class="block text-white hover:text-fresh-shoot py-2">Signup</a>
             {% endif %}
         </div>
     </nav>

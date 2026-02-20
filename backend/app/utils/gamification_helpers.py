@@ -7,59 +7,15 @@ Common utilities for gamification features.
 from functools import wraps
 from flask import jsonify
 from flask_jwt_extended import get_jwt_identity
+from app.extensions import db
 from app.models.user import User
-from app.models.college import College
 
 
 # ===== DECORATOR: Admin Required =====
-
-def admin_required(fn):
-    """
-    Decorator to require admin/college privileges.
-    
-    Usage:
-        @app.route('/admin/endpoint')
-        @admin_required
-        def admin_endpoint():
-            # Only admins can access this
-            pass
-    
-    Modify the logic inside to match your admin check system.
-    """
-    from flask_jwt_extended import jwt_required
-    
-    @wraps(fn)
-    @jwt_required()
-    def wrapper(*args, **kwargs):
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user:
-            return jsonify({
-                'success': False,
-                'error': 'User not found'
-            }), 404
-        
-        # ===== CUSTOMIZE THIS LOGIC =====
-        # Option 1: Check if user has college association
-        if not user.college_id:
-            return jsonify({
-                'success': False,
-                'error': 'Admin privileges required'
-            }), 403
-        
-        # Option 2: Check if user has is_admin flag (if you add this field)
-        # if not user.is_admin:
-        #     return jsonify({'error': 'Admin only'}), 403
-        
-        # Option 3: Check user role in college
-        # college = College.query.get(user.college_id)
-        # if not college or user.id != college.admin_id:
-        #     return jsonify({'error': 'Not authorized'}), 403
-        
-        return fn(*args, **kwargs)
-    
-    return wrapper
+#
+# The admin_required decorator was removed from this file.
+# Use the canonical implementation in app/routes/admin_routes.py
+# or app/utils/decorators.py for admin access control.
 
 
 # ===== DECORATOR: Moderator Required =====
@@ -67,7 +23,7 @@ def admin_required(fn):
 def moderator_required(fn):
     """
     Decorator to require moderator privileges in a community.
-    
+
     Usage:
         @app.route('/community/<int:community_id>/moderate')
         @moderator_required
@@ -76,21 +32,26 @@ def moderator_required(fn):
             pass
     """
     from flask_jwt_extended import jwt_required
-    
+
     @wraps(fn)
     @jwt_required()
     def wrapper(*args, **kwargs):
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
+        identity = get_jwt_identity()
+        if isinstance(identity, str) and identity.startswith("personnel_"):
+            return jsonify({'error': 'Access restricted to student accounts'}), 403
+        if identity is None:
+            return jsonify({'error': 'Authentication required'}), 401
+        user_id = int(identity)
+        user = db.session.get(User, user_id)
+
         if not user:
             return jsonify({
                 'success': False,
                 'error': 'User not found'
             }), 404
-        
-        # Get community_id from kwargs or args
-        community_id = kwargs.get('community_id') or args[0] if args else None
+
+        # Get community_id from kwargs only (args[0] is unreliable — see U7 fix)
+        community_id = kwargs.get('community_id')
         
         if not community_id:
             return jsonify({
@@ -255,28 +216,41 @@ def validate_required_fields(data, required_fields):
     """
     if not data:
         return "Request body cannot be empty"
-    
-    missing = [field for field in required_fields if field not in data]
-    
+
+    missing = []
+    for field in required_fields:
+        if field not in data:
+            missing.append(field)
+        elif data[field] is None:
+            missing.append(field)
+        elif isinstance(data[field], str) and str(data[field]).strip() == "":
+            missing.append(field)
+
     if missing:
-        return f"Missing required fields: {', '.join(missing)}"
-    
+        return f"Missing or empty required fields: {', '.join(missing)}"
+
     return None
 
 
 def validate_positive_integer(value, field_name="value"):
     """
     Validate that a value is a positive integer.
-    
+
+    Rejects bool values (True/False) even though bool is a subclass of int
+    in Python.
+
     Returns:
         str or None: Error message if invalid, None if valid
     """
+    if isinstance(value, bool):
+        return f"{field_name} must be an integer"
+
     if not isinstance(value, int):
         return f"{field_name} must be an integer"
-    
+
     if value <= 0:
         return f"{field_name} must be positive"
-    
+
     return None
 
 
@@ -285,19 +259,27 @@ def validate_positive_integer(value, field_name="value"):
 def get_current_user():
     """
     Get current authenticated user from JWT.
-    
+
+    Returns None for personnel tokens (prefix "personnel_") and for any
+    identity that cannot be resolved to an integer user ID.
+
     Usage:
         @jwt_required()
         def my_route():
             user = get_current_user()
             if not user:
                 return error_response('User not found', 404)
-    
+
     Returns:
         User or None
     """
-    user_id = get_jwt_identity()
-    return User.query.get(user_id)
+    identity = get_jwt_identity()
+    if isinstance(identity, str) and identity.startswith("personnel_"):
+        return None
+    if identity is None:
+        return None
+    user_id = int(identity)
+    return db.session.get(User, user_id)
 
 
 # ===== SKILL HELPERS =====
@@ -359,44 +341,3 @@ def get_user_rank(user, metric='xp'):
     
     return rank
 
-
-# ===== USAGE EXAMPLES =====
-
-"""
-EXAMPLE 1: Using decorators
-
-from app.utils.gamification_helpers import admin_required, success_response
-
-@app.route('/admin/stats')
-@admin_required
-def admin_stats():
-    # Only admins can access this
-    return success_response({'stats': {...}})
-
-
-EXAMPLE 2: Awarding XP
-
-from app.utils.gamification_helpers import award_xp_for_action
-
-@app.route('/task/complete')
-@jwt_required()
-def complete_task():
-    user = get_current_user()
-    result = award_xp_for_action(user, 'task', 
-                                  description='Completed community task')
-    return success_response({'xp': result})
-
-
-EXAMPLE 3: Validation
-
-from app.utils.gamification_helpers import validate_required_fields, error_response
-
-@app.route('/create')
-def create_item():
-    error = validate_required_fields(request.json, ['title', 'description'])
-    if error:
-        return error_response(error)
-    
-    # Proceed with creation
-    ...
-"""

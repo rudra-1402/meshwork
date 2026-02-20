@@ -33,12 +33,12 @@ class WhitelistService:
             tuple: (success: bool, message: str, whitelist_entry: WhitelistedEmail or None)
         """
         # Validate college exists
-        college = College.query.get(college_id)
+        college = db.session.get(College, college_id)
         if not college:
             return False, "College not found", None
         
-        # Check if email already whitelisted
-        existing = WhitelistedEmail.query.filter_by(email=email).first()
+        # Check if email already whitelisted for this college
+        existing = WhitelistedEmail.query.filter_by(email=email, college_id=college_id).first()
         if existing:
             return False, "Email already whitelisted", None
         
@@ -66,12 +66,15 @@ class WhitelistService:
     def bulk_add_emails(college_id, email_list, added_by_personnel_id):
         """
         Bulk add emails from list.
-        
+
+        All valid entries are staged and committed in a single transaction.
+        A single rollback is performed if the commit fails.
+
         Args:
             college_id (int): College ID
             email_list (list): List of dicts with keys: email, enrollment, name
             added_by_personnel_id (int): Personnel who added these
-            
+
         Returns:
             dict: {
                 'total': int,
@@ -80,37 +83,60 @@ class WhitelistService:
                 'errors': list
             }
         """
+        college = db.session.get(College, college_id)
+        if not college:
+            return {
+                'total': len(email_list),
+                'successful': 0,
+                'failed': len(email_list),
+                'errors': ['College not found']
+            }
+
         result = {
             'total': len(email_list),
             'successful': 0,
             'failed': 0,
             'errors': []
         }
-        
+
         for item in email_list:
             email = item.get('email', '').strip()
             enrollment = item.get('enrollment', '').strip() or None
             name = item.get('name', '').strip() or None
-            
+
             if not email:
                 result['failed'] += 1
                 result['errors'].append("Empty email in list")
                 continue
-            
-            success, message, _ = WhitelistService.add_email_to_whitelist(
+
+            # Check duplicate scoped to this college
+            existing = WhitelistedEmail.query.filter_by(
+                email=email, college_id=college_id
+            ).first()
+            if existing:
+                result['failed'] += 1
+                result['errors'].append(f"{email}: Email already whitelisted")
+                continue
+
+            whitelist_entry = WhitelistedEmail(
                 college_id=college_id,
                 email=email,
-                added_by_personnel_id=added_by_personnel_id,
                 student_enrollment=enrollment,
-                student_name=name
+                student_name=name,
+                added_by_personnel_id=added_by_personnel_id,
             )
-            
-            if success:
-                result['successful'] += 1
-            else:
-                result['failed'] += 1
-                result['errors'].append(f"{email}: {message}")
-        
+            db.session.add(whitelist_entry)
+            result['successful'] += 1
+
+        if result['successful'] > 0:
+            try:
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                result['successful'] = 0
+                result['failed'] = result['total']
+                result['errors'] = [f"Bulk insert failed: {str(e)}"]
+
         return result
     
     @staticmethod
@@ -164,7 +190,7 @@ class WhitelistService:
         Returns:
             tuple: (success: bool, message: str)
         """
-        entry = WhitelistedEmail.query.get(email_id)
+        entry = db.session.get(WhitelistedEmail, email_id)
         
         if not entry:
             return False, "Whitelist entry not found"
@@ -182,35 +208,37 @@ class WhitelistService:
             return False, f"Error removing email: {str(e)}"
     
     @staticmethod
-    def check_if_whitelisted(email):
+    def check_if_whitelisted(email, college_id):
         """
-        Check if email is in whitelist.
-        
+        Check if email is in whitelist for a specific college.
+
         Args:
             email (str): Email to check
-            
+            college_id (int): College to scope the lookup to
+
         Returns:
             tuple: (whitelisted: bool, entry: WhitelistedEmail or None)
         """
-        entry = WhitelistedEmail.query.filter_by(email=email).first()
-        
+        entry = WhitelistedEmail.query.filter_by(email=email, college_id=college_id).first()
+
         if entry:
             return True, entry
         return False, None
-    
+
     @staticmethod
-    def mark_email_registered(email, user_id):
+    def mark_email_registered(email, college_id, user_id):
         """
         Mark whitelisted email as registered.
-        
+
         Args:
             email (str): Email that was registered
+            college_id (int): College to scope the lookup to
             user_id (int): User ID who registered
-            
+
         Returns:
             tuple: (success: bool, message: str)
         """
-        entry = WhitelistedEmail.query.filter_by(email=email).first()
+        entry = WhitelistedEmail.query.filter_by(email=email, college_id=college_id).first()
         
         if not entry:
             return False, "Email not in whitelist"

@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-from flask import render_template, redirect, url_for, flash
 from flask_jwt_extended import jwt_required
 import logging
 
@@ -11,7 +10,7 @@ from app.exceptions import (
     ScoringError,
     NotScoredError
 )
-from app.utils.jwt_helpers import get_user_id_or_redirect
+from app.utils.jwt_helpers import get_user_id_or_error
 
 logger = logging.getLogger(__name__)
 
@@ -36,157 +35,90 @@ def get_scoring_service():
 @jwt_required()
 def questionnaire_form():
     """
-    Display the questionnaire form for users who haven't completed it.
-    Redirects to profile if already completed.
+    Return questionnaire status for users who haven't completed it.
+    SPA uses this to decide whether to show the questionnaire form.
     """
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
-    
+    user_id, err = get_user_id_or_error()
+    if err:
+        return err
+
     from app.models.scoring import UserScoring
-    
-    # Check if user has already completed questionnaire
+
     existing_scoring = UserScoring.query.filter_by(user_id=user_id).first()
     if existing_scoring:
-        flash("You have already completed the questionnaire.", "info")
-        return redirect(url_for('scoring.get_scoring_profile'))
-    
-    return render_template('auth/questionnaire.html')
+        return jsonify({"success": True, "questionnaire_completed": True}), 200
 
-@scoring_bp.route("/api/scoring/submit", methods=["POST"])
+    return jsonify({"success": True, "questionnaire_completed": False}), 200
+
+@scoring_bp.route("/submit", methods=["POST"])
 @jwt_required()
 def submit_questionnaire():
     """
-    Submit questionnaire - handles both JSON (API) and form data (HTML form).
+    Submit questionnaire — JSON only.
     """
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
+    user_id, error = get_user_id_or_error()
+    if error:
+        return error
     logger.info(f"=== Starting questionnaire submission for user_id={user_id} ===")
-    
-    # Handle both JSON and form data
-    if request.is_json:
-        data = request.get_json()
-        responses = data.get("responses", {})
-    else:
-        # Convert form data to expected format
-        responses = {
-            "q1_project_excitement": request.form.get("q1_project_excitement"),
-            "q2_team_roles": request.form.getlist("q2_team_roles"),
-            "q2_explanation": request.form.get("q2_explanation"),
-            "q3_depth_vs_breadth": int(request.form.get("q3_depth_vs_breadth")),
-            "q3_explanation": request.form.get("q3_explanation"),
-            "q4_problem_solving": request.form.get("q4_problem_solving"),
-            "q5_hackathons": int(request.form.get("q5_hackathons")),
-            "q5_competitions": int(request.form.get("q5_competitions")),
-            "q5_team_projects": int(request.form.get("q5_team_projects")),
-            "q5_open_source": int(request.form.get("q5_open_source")),
-            "q5_research": int(request.form.get("q5_research")),
-            "q6_technologies": request.form.getlist("q6_technologies"),
-            "q6_explanation": request.form.get("q6_explanation", ""),
-            "q7_collaboration_style": request.form.get("q7_collaboration_style"),
-            "q7_explanation": request.form.get("q7_explanation"),
-            "q8_learning_motivation": request.form.get("q8_learning_motivation")
-        }
-        logger.info(f"Form data parsed for user_id={user_id}")
-    
-    # Validate responses exist
+
+    data = request.get_json(silent=True) or {}
+    responses = data.get("responses", {})
+
     if not responses:
         logger.warning(f"No responses provided for user_id={user_id}")
-        if request.is_json:
-            return jsonify({"error": "Missing 'responses' field"}), 400
-        else:
-            flash("Please complete all required fields.", "error")
-            return redirect(url_for('scoring.questionnaire_form'))
-    
+        return jsonify({"error": "Missing 'responses' field"}), 400
+
     logger.info(f"Received questionnaire submission for user_id={user_id}")
-    
+
     try:
-        # Get service instance (lazy initialization)
         scoring_service = get_scoring_service()
-        
-        # Process questionnaire
         logger.info(f"Starting AI scoring for user_id={user_id}")
-        
-        # Add timeout protection (30 seconds max for AI scoring)
+
         import signal
-        
+        import platform
+
         def timeout_handler(signum, frame):
             raise TimeoutError("AI scoring exceeded 30 second timeout")
-        
-        # Set timeout (only on Unix-like systems)
-        import platform
+
         if platform.system() != 'Windows':
             signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(30)  # 30 second timeout
-        
+            signal.alarm(30)
+
         try:
             result = scoring_service.process_initial_questionnaire(user_id, responses)
         finally:
-            # Cancel timeout
             if platform.system() != 'Windows':
                 signal.alarm(0)
-        
+
         logger.info(f"AI scoring completed for user_id={user_id}: {result}")
-        
-        # Handle response based on request type
-        if request.is_json:
-            logger.info(f"Returning JSON response for user_id={user_id}")
-            return jsonify({
-                "status": "success",
-                "message": "Profile completed successfully",
-                "data": result
-            }), 200
-        else:
-            logger.info(f"Flashing success message and redirecting user_id={user_id}")
-            flash("Profile completed successfully!", "success")
-            logger.info(f"Redirecting to dashboard.profile_page for user_id={user_id}")
-            response = redirect(url_for('dashboard.profile_page'))
-            logger.info(f"=== Successfully completed questionnaire submission for user_id={user_id} ===")
-            return response
-    
+        return jsonify({
+            "status": "success",
+            "message": "Profile completed successfully",
+            "data": result
+        }), 200
+
     except AlreadyScoredError as e:
         logger.warning(f"Duplicate questionnaire submission attempt by user_id={user_id}")
-        if request.is_json:
-            return jsonify({"error": "Questionnaire already submitted", "message": str(e)}), 409
-        else:
-            flash("You have already completed the questionnaire.", "warning")
-            return redirect(url_for('dashboard.dashboard'))
-    
+        return jsonify({"error": "Questionnaire already submitted", "message": str(e)}), 409
+
     except ValidationError as e:
         logger.warning(f"Questionnaire validation failed for user_id={user_id}: {e}")
-        if request.is_json:
-            return jsonify({"error": "Invalid questionnaire data", "message": str(e)}), 400
-        else:
-            flash(f"Validation error: {str(e)}", "error")
-            return redirect(url_for('scoring.questionnaire_form'))
-    
+        return jsonify({"error": "Invalid questionnaire data", "message": str(e)}), 400
+
     except ScoringError as e:
         logger.error(f"AI scoring failed for user_id={user_id}: {e}", exc_info=True)
-        if request.is_json:
-            return jsonify({"error": "Scoring service temporarily unavailable"}), 503
-        else:
-            flash("AI Scoring failed. This may indicate Ollama is not responding. Please check the server and try again.", "error")
-            return redirect(url_for('scoring.questionnaire_form'))
-    
+        return jsonify({"error": "Scoring service temporarily unavailable"}), 503
+
     except TimeoutError as e:
         logger.error(f"AI scoring timeout for user_id={user_id}: {e}", exc_info=True)
-        if request.is_json:
-            return jsonify({"error": "Scoring request timed out"}), 504
-        else:
-            flash("Scoring took too long to respond. Please try again later.", "error")
-            return redirect(url_for('scoring.questionnaire_form'))
-    
+        return jsonify({"error": "Scoring request timed out"}), 504
+
     except Exception as e:
         logger.critical(f"Unexpected error in questionnaire submission for user_id={user_id}: {e}", exc_info=True)
-        if request.is_json:
-            return jsonify({"error": "An unexpected error occurred"}), 500
-        else:
-            flash("An unexpected error occurred. Please contact support.", "error")
-            return redirect(url_for('scoring.questionnaire_form'))
+        return jsonify({"error": "An unexpected error occurred"}), 500
 
 
-@scoring_bp.route("/api/scoring/profile", methods=["GET"])
+@scoring_bp.route("/profile", methods=["GET"])
 @jwt_required()
 def get_scoring_profile():
     """
@@ -218,12 +150,12 @@ def get_scoring_profile():
     Errors:
     - 404: User hasn't completed questionnaire yet
     """
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
-    
+    user_id, error = get_user_id_or_error()
+    if error:
+        return error
+
     from app.models.scoring import UserScoring
-    
+
     scoring = UserScoring.query.filter_by(user_id=user_id).first()
     
     if not scoring:
@@ -253,7 +185,7 @@ def get_scoring_profile():
     }), 200
 
 
-@scoring_bp.route("/api/scoring/history", methods=["GET"])
+@scoring_bp.route("/history", methods=["GET"])
 @jwt_required()
 def get_scoring_history():
     """
@@ -279,9 +211,9 @@ def get_scoring_history():
         }
     }
     """
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
+    user_id, error = get_user_id_or_error()
+    if error:
+        return error
     limit = request.args.get('limit', 20, type=int)
     
     from app.models.scoring_history import ScoringHistory
@@ -318,40 +250,35 @@ def retake_questionnaire():
     """
     Allow user to retake the questionnaire by deleting their current scores.
     """
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
-    
+    user_id, error = get_user_id_or_error()
+    if error:
+        return error
+
     from app.models.scoring import UserScoring
     from app.models.scoring_history import ScoringHistory
     from app.models.user import User
-    
+
     logger.info(f"User {user_id} requested to retake questionnaire")
-    
+
     try:
-        # Delete existing scoring record
         scoring = UserScoring.query.filter_by(user_id=user_id).first()
         if scoring:
-            # Delete all history entries
             ScoringHistory.query.filter_by(user_id=user_id).delete()
-            # Delete the scoring record
             db.session.delete(scoring)
-            
-            # Reset the questionnaire flag
-            user = User.query.get(user_id)
+
+            user = db.session.get(User, user_id)
             if user:
                 user.has_completed_questionnaire = False
-            
+
             db.session.commit()
             logger.info(f"Reset questionnaire for user {user_id}")
-            flash("Your profile has been reset. You can now retake the questionnaire.", "success")
-        else:
-            flash("No profile found to reset.", "info")
-        
-        return redirect(url_for('scoring.questionnaire_form'))
-    
+
+        return jsonify({
+            "success": True,
+            "message": "Profile reset. You may retake the questionnaire."
+        }), 200
+
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error resetting questionnaire for user {user_id}: {e}", exc_info=True)
-        flash("An error occurred while resetting your profile. Please try again.", "error")
-        return redirect(url_for('dashboard.profile_page'))
+        return jsonify({"success": False, "message": "An error occurred while resetting your profile."}), 500

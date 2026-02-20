@@ -1,133 +1,122 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from app.extensions import db
-from app.services.community_service import create_community_service
+from app.services.community_service import CommunityService
 from app.services.auth_services import get_user_by_id
 from app.models.community import Community
 from app.models.community_member import CommunityMember
 from app.models.community_message import CommunityMessage
-from app.utils.jwt_helpers import get_user_id_or_redirect
+from app.utils.jwt_helpers import get_user_id_or_error
 
 community_routes = Blueprint(
     "community_routes",
-    __name__,
-    url_prefix="/communities"
+    __name__
 )
 
 
 # ================= CREATE COMMUNITY =================
-@community_routes.route("/create", methods=["GET", "POST"])
+@community_routes.route("/create", methods=["POST"])
 @jwt_required()
 def create_community():
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
+    user_id, err = get_user_id_or_error()
+    if err:
+        return err
+
     user = get_user_by_id(user_id)
-
     if not user:
-        flash("User not found", "error")
-        return redirect(url_for("auth.user_login"))
+        return jsonify({"success": False, "message": "User not found"}), 404
 
-    if request.method == "POST":
-        community_name = request.form.get("community_name")
-        subject = request.form.get("subject")
+    data = request.get_json(silent=True) or {}
+    community_name = data.get("community_name")
+    subject = data.get("subject")
 
-        if not community_name or not subject:
-            flash("All fields are required")
-            return redirect(url_for("community_routes.create_community"))
+    if not community_name or not subject:
+        return jsonify({"success": False, "message": "community_name and subject are required"}), 400
 
-        create_community_service(
-            community_name=community_name,
-            subject=subject,
-            college_id=user.college_id,
-            user_id=user.id
-        )
+    community = CommunityService.create_community(
+        community_name=community_name,
+        subject=subject,
+        college_id=user.college_id,
+        user_id=user.id
+    )
 
-        flash("Community created successfully")
-        return redirect(url_for("dashboard.dashboard"))
-
-    return render_template("communities/create_community.html")
+    return jsonify({
+        "success": True,
+        "community": {
+            "community_id": community.community_id,
+            "community_name": community.community_name,
+            "subject": community.subject,
+            "college_id": community.college_id,
+            "created_by": community.created_by,
+        }
+    }), 201
 
 
 # ================= EXPLORE COMMUNITIES =================
 @community_routes.route("/explore")
 @jwt_required()
 def explore_communities():
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
+    user_id, err = get_user_id_or_error()
+    if err:
+        return err
+
     user = get_user_by_id(user_id)
-
     if not user:
-        flash("User not found", "error")
-        return redirect(url_for("auth.user_login"))
+        return jsonify({"success": False, "message": "User not found"}), 404
 
-    # All communities of user's college
-    communities = Community.query.filter_by(
-        college_id=user.college_id
-    ).all()
+    communities = Community.query.filter_by(college_id=user.college_id).all()
 
-    # Community IDs that current user has joined
     joined_ids = {
         member.community_id
-        for member in CommunityMember.query.filter_by(
-            user_id=user.id
-        ).all()
+        for member in CommunityMember.query.filter_by(user_id=user.id).all()
     }
 
-    return render_template(
-        "communities/explore_communities.html",
-        communities=communities,
-        joined_ids=joined_ids
-    )
+    return jsonify({
+        "success": True,
+        "communities": [
+            {
+                "community_id": c.community_id,
+                "community_name": c.community_name,
+                "subject": c.subject,
+                "is_member": c.community_id in joined_ids,
+            }
+            for c in communities
+        ]
+    }), 200
 
 
 # ================= JOIN COMMUNITY =================
 @community_routes.route("/join/<int:community_id>", methods=["POST"])
 @jwt_required()
 def join_community(community_id):
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
+    user_id, err = get_user_id_or_error()
+    if err:
+        return err
 
-    # Prevent duplicate join
-    existing_member = CommunityMember.query.filter_by(
-        user_id=user_id,
-        community_id=community_id
-    ).first()
-
-    if not existing_member:
-        member = CommunityMember(
-            user_id=user_id,
-            community_id=community_id
-        )
-        db.session.add(member)
-        db.session.commit()
-        flash("You joined the community successfully")
-
-    return redirect(url_for("community_routes.explore_communities"))
+    joined, message = CommunityService.join_community(community_id, user_id)
+    if joined:
+        return jsonify({"success": True, "message": message}), 200
+    return jsonify({"success": False, "message": message}), 400
 
 
 # ================= VIEW COMMUNITY =================
 @community_routes.route("/view/<int:community_id>")
 @jwt_required()
 def view_community(community_id):
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
+    user_id, err = get_user_id_or_error()
+    if err:
+        return err
 
-    community = Community.query.get(community_id)
+    community = db.session.get(Community, community_id)
     if not community:
-        flash("Community not found", "error")
-        return redirect(url_for("community_routes.explore_communities"))
+        return jsonify({"success": False, "message": "Community not found"}), 404
 
     is_member = CommunityMember.query.filter_by(
         user_id=user_id,
         community_id=community_id
     ).first()
     if not is_member:
-        flash("Join the community to view messages.", "error")
-        return redirect(url_for("community_routes.explore_communities"))
+        return jsonify({"success": False, "message": "Join the community to view messages."}), 403
 
     messages = (
         CommunityMessage.query
@@ -139,138 +128,141 @@ def view_community(community_id):
     user = get_user_by_id(user_id)
     is_admin = community.created_by == user_id or (user and getattr(user, 'is_admin', False))
 
-    return render_template(
-        "communities/view_communites.html",
-        community=community,
-        messages=messages,
-        is_admin=is_admin
-    )
+    return jsonify({
+        "success": True,
+        "community": {
+            "community_id": community.community_id,
+            "community_name": community.community_name,
+            "subject": community.subject,
+            "is_admin": is_admin,
+        },
+        "messages": [
+            {
+                "id": m.id,
+                "user_id": m.user_id,
+                "message": m.message,
+                "messaged_at": m.messaged_at.isoformat() if m.messaged_at else None,
+            }
+            for m in messages
+        ]
+    }), 200
 
 
 # ================= SEND MESSAGE (ADMIN) =================
 @community_routes.route("/message/<int:community_id>", methods=["POST"])
 @jwt_required()
 def send_message(community_id):
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
+    user_id, err = get_user_id_or_error()
+    if err:
+        return err
 
-    community = Community.query.get(community_id)
+    community = db.session.get(Community, community_id)
     if not community:
-        flash("Community not found", "error")
-        return redirect(url_for("community_routes.explore_communities"))
+        return jsonify({"success": False, "message": "Community not found"}), 404
 
     if community.created_by != user_id:
-        flash("Only the community admin can send messages.", "error")
-        return redirect(url_for("community_routes.view_community", community_id=community_id))
+        return jsonify({"success": False, "message": "Only the community admin can send messages."}), 403
 
-    message_text = request.form.get("message", "").strip()
+    data = request.get_json(silent=True) or {}
+    message_text = data.get("message", "").strip()
     if not message_text:
-        flash("Message cannot be empty.", "error")
-        return redirect(url_for("community_routes.view_community", community_id=community_id))
+        return jsonify({"success": False, "message": "Message cannot be empty."}), 400
 
-    message = CommunityMessage(
-        user_id=user_id,
-        community_id=community_id,
-        message=message_text
-    )
-    db.session.add(message)
-    db.session.commit()
-    flash("Message sent successfully")
-
-    return redirect(url_for("community_routes.view_community", community_id=community_id))
+    success, msg_result, msg_obj = CommunityService.send_message(community_id, user_id, message_text)
+    if success:
+        return jsonify({
+            "success": True,
+            "message": {
+                "id": msg_obj.id if msg_obj else None,
+                "text": msg_result,
+            }
+        }), 201
+    return jsonify({"success": False, "message": msg_result}), 400
 
 
 # ================= CREATE TASK (ADMIN) =================
-@community_routes.route("/<int:community_id>/tasks/create", methods=["GET", "POST"])
+@community_routes.route("/<int:community_id>/tasks/create", methods=["POST"])
 @jwt_required()
 def create_task(community_id):
-    from app.models.community_task import CommunityTask
-    
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
+    import json as _json
 
-    community = Community.query.get(community_id)
+    user_id, err = get_user_id_or_error()
+    if err:
+        return err
+
+    community = db.session.get(Community, community_id)
     if not community:
-        flash("Community not found", "error")
-        return redirect(url_for("community_routes.explore_communities"))
+        return jsonify({"success": False, "message": "Community not found"}), 404
 
-    # Check if user is community admin or has admin privileges
     user = get_user_by_id(user_id)
     is_admin = community.created_by == user_id or (user and getattr(user, 'is_admin', False))
-    
+
     if not is_admin:
-        flash("Only admins can create tasks.", "error")
-        return redirect(url_for("community_routes.view_community", community_id=community_id))
+        return jsonify({"success": False, "message": "Only admins can create tasks."}), 403
 
-    if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        description = request.form.get("description", "").strip()
-        difficulty = request.form.get("difficulty", "Medium")
-        max_xp = request.form.get("max_xp_reward", 0, type=int)
-        
-        # Get actions from form (expecting JSON array or comma-separated list)
-        actions_raw = request.form.get("actions", "[]")
-        try:
-            import json
-            actions = json.loads(actions_raw)
-        except:
-            # Fallback: split by newlines if not JSON
-            actions_list = [a.strip() for a in actions_raw.split('\n') if a.strip()]
-            actions = [{"id": i+1, "text": text, "xp": max_xp // len(actions_list) if actions_list else 0} 
-                      for i, text in enumerate(actions_list)]
+    data = request.get_json(silent=True) or {}
+    title = data.get("title", "").strip()
+    description = data.get("description", "").strip()
+    difficulty = data.get("difficulty", "Medium")
+    max_xp = data.get("max_xp_reward", 0)
+    actions = data.get("actions", [])
 
-        if not title:
-            flash("Task title is required.", "error")
-            return redirect(url_for("community_routes.create_task", community_id=community_id))
+    if not title:
+        return jsonify({"success": False, "message": "Task title is required."}), 400
 
-        new_task = CommunityTask(
-            community_id=community_id,
-            created_by=user_id,
-            title=title,
-            description=description,
-            difficulty=difficulty,
-            max_xp_reward=max_xp,
-            actions=actions
-        )
-        db.session.add(new_task)
-        db.session.commit()
-        
-        flash(f"Task '{title}' created successfully!", "success")
-        return redirect(url_for("community_routes.view_community", community_id=community_id))
-
-    return render_template(
-        "communities/create_task.html",
-        community=community
+    success, msg, task = CommunityService.create_task(
+        community_id=community_id,
+        user_id=user_id,
+        title=title,
+        description=description,
+        actions=actions,
+        difficulty=difficulty,
+        max_xp_reward=max_xp
     )
 
+    if success:
+        return jsonify({
+            "success": True,
+            "task": {
+                "task_id": task.task_id if task else None,
+                "title": title,
+                "difficulty": difficulty,
+            }
+        }), 201
+    return jsonify({"success": False, "message": msg}), 400
 
-# ================= VIEW TASKS (ADMIN) =================
+
+# ================= VIEW TASKS =================
 @community_routes.route("/<int:community_id>/tasks", methods=["GET"])
 @jwt_required()
 def view_tasks(community_id):
     from app.models.community_task import CommunityTask
-    
-    user_id, response = get_user_id_or_redirect()
-    if response:
-        return response
 
-    community = Community.query.get(community_id)
+    user_id, err = get_user_id_or_error()
+    if err:
+        return err
+
+    community = db.session.get(Community, community_id)
     if not community:
-        flash("Community not found", "error")
-        return redirect(url_for("community_routes.explore_communities"))
+        return jsonify({"success": False, "message": "Community not found"}), 404
 
-    # Get all tasks for this community
     tasks = CommunityTask.query.filter_by(community_id=community_id).all()
-    
-    # Check if user is admin
+
     user = get_user_by_id(user_id)
     is_admin = community.created_by == user_id or (user and getattr(user, 'is_admin', False))
 
-    return render_template(
-        "communities/view_tasks.html",
-        community=community,
-        tasks=tasks,
-        is_admin=is_admin
-    )
+    return jsonify({
+        "success": True,
+        "is_admin": is_admin,
+        "tasks": [
+            {
+                "task_id": t.task_id,
+                "title": t.title,
+                "description": t.description,
+                "difficulty": t.difficulty,
+                "max_xp_reward": t.max_xp_reward,
+                "is_active": t.is_active,
+            }
+            for t in tasks
+        ]
+    }), 200

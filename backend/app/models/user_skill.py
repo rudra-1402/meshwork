@@ -8,8 +8,9 @@ Business logic has been moved to services/skill_service.py
 """
 
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 import math
+from app.constants.gamification import LEVEL_FORMULA_DIVISOR
 
 
 class UserSkill(db.Model):
@@ -44,14 +45,14 @@ class UserSkill(db.Model):
     level = db.Column(db.Integer, default=0, nullable=False)
     
     # Last activity with this skill
-    last_activity_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_activity_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
     )
 
     # ===== RELATIONSHIPS =====
@@ -96,8 +97,8 @@ class UserSkill(db.Model):
             return 0
         
         # Use same formula as User level for consistency
-        # level = sqrt(xp / 100)
-        level = int(math.sqrt(xp / 100))
+        # level = sqrt(xp / LEVEL_FORMULA_DIVISOR)
+        level = int(math.sqrt(xp / LEVEL_FORMULA_DIVISOR))
         
         return max(0, level)
     
@@ -117,75 +118,9 @@ class UserSkill(db.Model):
         
         return leveled_up, old_level, self.level
     
-    # ===== READ-ONLY QUERIES (OK in Model) =====
-    
-    @staticmethod
-    def get_user_top_skills(user_id, limit=5):
-        """
-        Get user's top skills by XP.
-        
-        This is a READ-ONLY QUERY - allowed in model.
-        
-        Args:
-            user_id: User ID
-            limit: Number of skills to return
-            
-        Returns:
-            List of UserSkill instances
-        """
-        return (
-            UserSkill.query
-            .filter_by(user_id=user_id)
-            .order_by(UserSkill.xp.desc())
-            .limit(limit)
-            .all()
-        )
-    
-    @staticmethod
-    def get_user_skills_summary(user_id):
-        """
-        Get summary of all user skills for profile display.
-        
-        This is a READ-ONLY aggregation - allowed in model.
-        
-        Args:
-            user_id: User ID
-            
-        Returns:
-            dict: {
-                'total_skills': int,
-                'total_skill_xp': int,
-                'top_skills': list,
-                'level_breakdown': dict
-            }
-        """
-        all_skills = UserSkill.query.filter_by(user_id=user_id).all()
-        
-        total_xp = sum(s.xp for s in all_skills)
-        
-        # Top 5 skills by XP
-        top_skills = sorted(all_skills, key=lambda s: s.xp, reverse=True)[:5]
-        
-        # Breakdown by level
-        level_breakdown = {}
-        for skill in all_skills:
-            level_key = f"Level {skill.level}"
-            level_breakdown[level_key] = level_breakdown.get(level_key, 0) + 1
-        
-        return {
-            'total_skills': len(all_skills),
-            'total_skill_xp': total_xp,
-            'top_skills': [
-                {
-                    'skill_name': s.skill_name,
-                    'level': s.level,
-                    'xp': s.xp,
-                    'last_activity': s.last_activity_at.isoformat() if s.last_activity_at else None
-                }
-                for s in top_skills
-            ],
-            'level_breakdown': level_breakdown
-        }
-    
+    # ===== READ QUERIES (in service layer) =====
+    # Top skills by XP     → SkillService.get_user_top_skills(user_id, limit)
+    # Full skills summary  → SkillService.get_user_skills_summary(user_id)
+
     def __repr__(self):
         return f"<UserSkill user={self.user_id} {self.skill_name} L{self.level} ({self.xp} XP)>"

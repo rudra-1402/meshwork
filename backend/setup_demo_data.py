@@ -118,7 +118,7 @@ with app.app_context():
     if hod:
         print(f"   Email: {hod.email}")
         print(f"   Password: hod123")
-        print(f"   URL: http://localhost:5000/login/personnel")
+        print(f"   URL: http://localhost:5000/legacy/college-auth/login/personnel")
     
     print("\n📌 Sample Student Emails (Whitelisted):")
     whitelist = WhitelistedEmail.query.filter_by(college_id=college.id, is_registered=False).limit(5).all()
@@ -127,7 +127,7 @@ with app.app_context():
     
     print("\n📌 Next Steps:")
     print("   1. Start server: flask run")
-    print("   2. Login as personnel: http://localhost:5000/login/personnel")
+    print("   2. Login as personnel: http://localhost:5000/legacy/college-auth/login/personnel")
     print("   3. Manage whitelist: http://localhost:5000/personnel/whitelist")
-    print("   4. Test student signup: http://localhost:5000/signup/user")
+    print("   4. Test student signup: http://localhost:5000/legacy/auth/signup/user")
     print("\n🎉 Ready for demo!\n")

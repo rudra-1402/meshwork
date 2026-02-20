@@ -4,6 +4,7 @@ Email Validation Service
 Validates student and personnel emails against college patterns and whitelist.
 """
 
+from app.extensions import db
 from app.models.user import User
 from app.models.college import College
 from app.models.whitelisted_email import WhitelistedEmail
@@ -185,7 +186,7 @@ class EmailValidationService:
                 'error': 'Email is required'
             }
         
-        college = College.query.get(college_id)
+        college = db.session.get(College, college_id)
         if not college:
             return {
                 'valid': False,

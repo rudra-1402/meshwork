@@ -26,7 +26,7 @@ def get_user_by_id(user_id):
     Returns:
         User: User object if found, None otherwise
     """
-    return User.query.get(user_id)
+    return db.session.get(User, user_id)
 
 
 def create_user(username, first_name, last_name, email, password, college_id=None):

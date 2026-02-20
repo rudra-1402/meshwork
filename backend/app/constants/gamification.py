@@ -39,6 +39,9 @@ XP_AMOUNTS = {
     'community_join': 20,
     'helpful_comment': 5,  # When upvoted by others
     
+    # Signup
+    'account_created': 50,  # Welcome bonus for new student registration
+
     # Admin adjustments
     'admin_bonus': 0,  # Variable amount set by admin
     'admin_penalty': 0,  # Variable amount set by admin
