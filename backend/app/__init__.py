@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 from app.config import Config
 from datetime import timedelta
 from flask_jwt_extended import JWTManager
@@ -7,18 +8,24 @@ from app.extensions import db, migrate
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.config['JWT_SECRET_KEY'] = 'your-secret-key-change-in-production'
-    app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-    app.config['JWT_COOKIE_NAME'] = 'access_token_cookie'
-    app.config['JWT_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
-    app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # Enable CSRF in production
-    app.config['JWT_COOKIE_SAMESITE'] = 'Lax'
-    app.config['JWT_DECODE_LEEWAY'] = 10  # Allow 10 seconds of leeway for clock skew
-
-    # Extended to 24 hours for better user experience (reduce in production if needed)
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
     
-    # Allows up to 2 minutes for AI model inference
+    # ✅ CORS CONFIGURATION (React SPA)
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": ["http://localhost:3000", "http://localhost:5173"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
+    
+    # ✅ JWT CONFIGURATION (Header-based for SPA)
+    app.config['JWT_SECRET_KEY'] = 'your-secret-key-change-in-production'
+    app.config['JWT_TOKEN_LOCATION'] = ['headers']  # Changed from cookies to headers
+    app.config['JWT_HEADER_NAME'] = 'Authorization'
+    app.config['JWT_HEADER_TYPE'] = 'Bearer'
+    app.config['JWT_DECODE_LEEWAY'] = 10
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
     app.config['TIMEOUT'] = 120
     
     # ✅ INIT EXTENSIONS
@@ -26,34 +33,33 @@ def create_app():
     migrate.init_app(app, db)
     jwt = JWTManager(app)
     
-    # ✅ JWT ERROR HANDLERS
-    from flask import flash, redirect, url_for, request
+    # ✅ JWT ERROR HANDLERS (API-friendly JSON responses)
     import logging
-    
     logger = logging.getLogger(__name__)
-    
-    def _select_login_redirect():
-        if request.endpoint and request.endpoint.startswith("dashboard.college"):
-            return redirect(url_for("college_auth.college_login"))
-        return redirect(url_for("auth.user_login"))
     
     @jwt.unauthorized_loader
     def missing_token_callback(error):
         logger.warning(f"Missing JWT token for {request.path}")
-        flash("Please log in to access this page.", "error")
-        return _select_login_redirect(), 302
+        return jsonify({
+            'success': False,
+            'message': 'Authorization token is missing'
+        }), 401
     
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
         logger.warning(f"Invalid JWT token for {request.path}: {error}")
-        flash("Your session has expired. Please log in again.", "error")
-        return _select_login_redirect(), 302
+        return jsonify({
+            'success': False,
+            'message': 'Invalid authorization token'
+        }), 401
     
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_data):
         logger.warning(f"Expired JWT token for {request.path}")
-        flash("Your session has expired. Please log in again.", "error")
-        return _select_login_redirect(), 302
+        return jsonify({
+            'success': False,
+            'message': 'Authorization token has expired'
+        }), 401
     
     # ================= IMPORT MODELS =================
     # (Required so Flask-Migrate can detect tables)
@@ -91,25 +97,55 @@ def create_app():
     from app.routes.main_routes import main_routes
     from app.routes.auth_routes import auth_routes
     from app.routes.college_auth_routes import college_auth_routes
+    from app.routes.unified_auth_routes import unified_auth_routes
     from app.routes.dashboard_routes import dashboard_routes
     from app.routes.scoring_routes import scoring_bp
     from app.routes.community_routes import community_routes
     from app.routes.personnel_dashboard_routes import personnel_dashboard_routes
-    
     from app.routes.profile_routes import profile_bp
     from app.routes.leaderboard_routes import leaderboards_bp
-    from app.routes.admin_routes import admin_bp  # Or your admin blueprint
+    from app.routes.admin_routes import admin_bp
     
-    app.register_blueprint(main_routes)
-    app.register_blueprint(auth_routes)
-    app.register_blueprint(college_auth_routes)
-    app.register_blueprint(dashboard_routes, url_prefix="")
-    app.register_blueprint(scoring_bp, url_prefix="/scoring")
-    app.register_blueprint(community_routes)
-    app.register_blueprint(personnel_dashboard_routes)
-
-    app.register_blueprint(profile_bp)
-    app.register_blueprint(leaderboards_bp)
-    app.register_blueprint(admin_bp)
+    # Register all routes under /api prefix for clean API architecture
+    app.register_blueprint(main_routes, url_prefix="/api")
+    app.register_blueprint(auth_routes, url_prefix="/api/auth")
+    app.register_blueprint(college_auth_routes, url_prefix="/api/college-auth")
+    app.register_blueprint(unified_auth_routes)  # Has its own prefix /api/auth
+    app.register_blueprint(dashboard_routes, url_prefix="/api/dashboard")
+    app.register_blueprint(scoring_bp, url_prefix="/api/scoring")
+    app.register_blueprint(community_routes, url_prefix="/api/communities")
+    app.register_blueprint(personnel_dashboard_routes, url_prefix="/api/personnel")
+    app.register_blueprint(profile_bp, url_prefix="/api/profile")
+    app.register_blueprint(leaderboards_bp, url_prefix="/api/leaderboard")
+    app.register_blueprint(admin_bp, url_prefix="/api/admin")
+    
+    # ✅ Root route - API info
+    @app.route('/')
+    def root():
+        return jsonify({
+            'name': 'MeshWork API',
+            'version': '2.0.0',
+            'status': 'running',
+            'message': 'This is an API server. Use /api/* endpoints.',
+            'endpoints': {
+                'health': '/api/health',
+                'unified_auth': {
+                    'validate_email': 'POST /api/auth/validate-email',
+                    'login': 'POST /api/auth/login',
+                    'signup': 'POST /api/auth/signup',
+                    'check_username': 'POST /api/auth/check-username'
+                },
+                'docs': 'See UNIFIED_AUTH_TEST_COMMANDS.md for test examples'
+            }
+        }), 200
+    
+    # ✅ API Health Check
+    @app.route('/api/health')
+    def health_check():
+        return jsonify({
+            'status': 'healthy',
+            'message': 'MeshWork API is running',
+            'version': '2.0.0'
+        }), 200
     
     return app
